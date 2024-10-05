@@ -19,6 +19,7 @@ const RegisterDailyBorrower = () => {
     balanceAmount: "",
     tenure: "",
   });
+  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,18 +65,25 @@ const RegisterDailyBorrower = () => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/auth/registerdailyborrower`,formData);
       if (response.status === 200) {
-        console.log("Borrower registered successfully");
-        navigate("/home");
+        setMessage("Borrower registered successfully");
       } else {
-        console.error("Failed to register borrower");
+        setMessage("Failed to register borrower");
       }
     } catch (error) {
-      console.error("Error registering borrower:", error);
+      setMessage("Error registering borrower:", error);
+      console.log(error);
     }
   };
 
   return (
+    
+    
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
+      {message && (
+        <div className="absolute top-[10%] left-0 right-0 flex justify-center mb-4">
+          <p className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg">{message}</p>
+        </div>
+      )}
       <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-xl">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">
           Register Daily Borrower

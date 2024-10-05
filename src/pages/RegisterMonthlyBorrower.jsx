@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {FaUser,FaPhone,FaIdCard,FaMoneyCheckAlt,FaCoins,FaCalendarAlt,FaClipboardList,} from "react-icons/fa";
+import {
+  FaUser,
+  FaPhone,
+  FaIdCard,
+  FaMoneyCheckAlt,
+  FaCoins,
+  FaCalendarAlt,
+  FaClipboardList,
+} from "react-icons/fa";
 import axios from "axios";
 
 const RegisterMonthlyBorrower = () => {
   const navigate = useNavigate();
+  const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     contact: "",
@@ -15,7 +24,7 @@ const RegisterMonthlyBorrower = () => {
     interestAmount: "",
     loanScheme: "monthly",
     tenure: "",
-    loanStartDate: new Date().toISOString().split('T')[0], // Set default to today's date
+    loanStartDate: new Date().toISOString().split("T")[0], // Set default to today's date
     loanEndDate: "",
     balanceAmount: "",
   });
@@ -34,10 +43,10 @@ const RegisterMonthlyBorrower = () => {
       const interestRate = parseFloat(formData.interestPercentage);
       if (!isNaN(principle) && !isNaN(interestRate)) {
         const interestAmount = (principle * interestRate) / 100;
-        setFormData(prevState => ({
+        setFormData((prevState) => ({
           ...prevState,
           interestAmount: Math.round(interestAmount),
-          balanceAmount: Math.round(principle)
+          balanceAmount: Math.round(principle),
         }));
       }
     }
@@ -48,10 +57,12 @@ const RegisterMonthlyBorrower = () => {
       const startDate = new Date(formData.loanStartDate);
       const tenure = parseInt(formData.tenure);
       if (!isNaN(tenure) && tenure > 0) {
-        const endDate = new Date(startDate.setMonth(startDate.getMonth() + tenure));
-        setFormData(prevState => ({
+        const endDate = new Date(
+          startDate.setMonth(startDate.getMonth() + tenure)
+        );
+        setFormData((prevState) => ({
           ...prevState,
-          loanEndDate: endDate.toISOString().split('T')[0]
+          loanEndDate: endDate.toISOString().split("T")[0],
         }));
       }
     }
@@ -61,20 +72,32 @@ const RegisterMonthlyBorrower = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/auth/registermonthlyborrower`, formData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/registermonthlyborrower`,
+        formData
+      );
       if (response.status === 200) {
         console.log("Monthly Borrower registered successfully");
-        navigate("/home");
+        setMessage("Monthly Borrower registered successfully");
       } else {
         console.error("Failed to register monthly borrower");
+        setMessage("Failed to register monthly borrower");
       }
     } catch (error) {
       console.error("Error registering monthly borrower:", error);
+      setMessage("Error registering monthly borrower:", error);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
+      {message && (
+        <div className="absolute top-[10%] left-0 right-0 flex justify-center mb-4">
+          <p className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg">
+            {message}
+          </p>
+        </div>
+      )}
       <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-xl">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">
           Register Monthly Borrower
