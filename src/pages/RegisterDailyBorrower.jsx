@@ -75,13 +75,13 @@ const RegisterDailyBorrower = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-xl">
-        <h2 className="text-3xl font-extrabold text-gray-900 mb-6 text-center">
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
+      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-xl">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">
           Register Daily Borrower
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
                 htmlFor="name"
@@ -94,7 +94,7 @@ const RegisterDailyBorrower = () => {
                 id="name"
                 name="name"
                 required
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
               />
             </div>
@@ -110,7 +110,7 @@ const RegisterDailyBorrower = () => {
                 id="contact"
                 name="contact"
                 required
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
               />
             </div>
@@ -126,7 +126,7 @@ const RegisterDailyBorrower = () => {
                 id="aadharNumber"
                 name="aadharNumber"
                 required
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
               />
             </div>
@@ -142,7 +142,7 @@ const RegisterDailyBorrower = () => {
                 id="chequeNumber"
                 name="chequeNumber"
                 required
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
               />
             </div>
@@ -158,7 +158,7 @@ const RegisterDailyBorrower = () => {
                 id="principleAmount"
                 name="principleAmount"
                 required
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
               />
             </div>
@@ -174,7 +174,7 @@ const RegisterDailyBorrower = () => {
                 id="refundAmount"
                 name="refundAmount"
                 required
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
               />
             </div>
@@ -190,7 +190,7 @@ const RegisterDailyBorrower = () => {
                 id="tenure"
                 name="tenure"
                 required
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
               />
             </div>
@@ -207,7 +207,7 @@ const RegisterDailyBorrower = () => {
                 name="emiAmount"
                 value={formData.emiAmount}
                 readOnly
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
               />
             </div>
             <div>
@@ -223,7 +223,7 @@ const RegisterDailyBorrower = () => {
                 name="loanStartDate"
                 value={formData.loanStartDate}
                 required
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
               />
             </div>
@@ -240,7 +240,7 @@ const RegisterDailyBorrower = () => {
                 name="loanEndDate"
                 value={formData.loanEndDate}
                 readOnly
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
               />
             </div>
             <div>
@@ -256,14 +256,14 @@ const RegisterDailyBorrower = () => {
                 name="balanceAmount"
                 value={formData.balanceAmount}
                 readOnly
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
               />
             </div>
           </div>
-          <div className="mt-8">
+          <div className="mt-6">
             <button
               type="submit"
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300"
+              className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300"
             >
               Register Daily Borrower
             </button>
