@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './features/navigation/Header'
 import Login from './features/auth/Login'
 import Home from './pages/Home'
-import RegisterBorrower from './pages/Registerborrower'
+import RegisterDailyBorrower from './pages/RegisterDailyBorrower'
+import RegisterMonthlyBorrower from './pages/RegisterMonthlyBorrower'
 function App() {
   return (
     <Router>
@@ -12,7 +13,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/registerborrower" element={<RegisterBorrower />} />
+          <Route path="/registerdailyborrower" element={<RegisterDailyBorrower />} />
+          <Route path="/registermonthlyborrower" element={<RegisterMonthlyBorrower />} />
         </Routes>
       </div>
     </Router>

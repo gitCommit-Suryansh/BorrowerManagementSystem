@@ -20,9 +20,10 @@ const Home = () => {
             icon="📆"
           />
           <Card
-            title="Register a Borrower"
+            title="Borrower"
             description="Add a new borrower to the system"
-            link="/registerborrower"
+            link="/registerdailyborrower"
+            link2="/registermonthlyborrower"
             icon="👤"
           />
         </div>
@@ -31,7 +32,7 @@ const Home = () => {
   );
 };
 
-const Card = ({ title, description, link, icon }) => (
+const Card = ({ title, description, link, link2, icon }) => (
   <div className="bg-white rounded-lg shadow-xl overflow-hidden transform transition duration-500 hover:scale-105">
     <div className="p-6">
       <div className="text-4xl mb-4">{icon}</div>
@@ -39,10 +40,18 @@ const Card = ({ title, description, link, icon }) => (
       <p className="text-gray-600 mb-4">{description}</p>
       <Link
         to={link}
-        className="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300"
+        className="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 mr-2 mb-2"
       >
-        Go to {title}
+        {title === "Borrower" ? "Register Daily Borrower" : `Go to ${title}`}
       </Link>
+      {link2 && (
+        <Link
+          to={link2}
+          className="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300"
+        >
+          Register Monthly Borrower
+        </Link>
+      )}
     </div>
   </div>
 );
