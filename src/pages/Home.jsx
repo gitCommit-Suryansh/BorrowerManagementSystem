@@ -10,13 +10,13 @@ const Home = () => {
           <Card
             title="Daily Scheme"
             description="Manage daily installments for borrowers"
-            link="/daily-scheme"
+            link="/dailyborrower"
             icon="📅"
           />
           <Card
             title="Monthly Scheme"
             description="Manage monthly installments for borrowers"
-            link="/monthly-scheme"
+            link="/monthlyborrower"
             icon="📆"
           />
           <Card
