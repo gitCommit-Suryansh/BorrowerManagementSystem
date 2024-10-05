@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import logo from '../../assets/images/logo.png'
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,7 +8,7 @@ const Header = () => {
   return (
     <header className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-8 shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
-        <h1 className="text-4xl font-extrabold">BMS</h1>
+        <img src={logo} alt="logo" className="w-[20vw] md:w-[7vw]" />
         <nav className="ml-auto">
           <ul className="hidden md:flex space-x-7">
             <li><Link to="/home" className="block hover:text-gray-200 transition duration-300">Home</Link></li>
