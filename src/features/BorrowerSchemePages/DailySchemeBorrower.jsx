@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaUser, FaPhone, FaIdCard, FaMoneyCheckAlt, FaCalendarAlt, FaTimes } from 'react-icons/fa';
+import { FaUser, FaPhone, FaIdCard, FaMoneyCheckAlt, FaCalendarAlt, FaTimes, FaPercent } from 'react-icons/fa';
 
 const DailySchemeBorrower = () => {
   const [dailyBorrowers, setDailyBorrowers] = useState([]);
@@ -10,6 +10,7 @@ const DailySchemeBorrower = () => {
   const [installments, setInstallments] = useState([]);
   const [receivedAmounts, setReceivedAmounts] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [discountAmount, setDiscountAmount] = useState('');
 
   useEffect(() => {
     const fetchDailyBorrowers = async () => {
@@ -119,6 +120,29 @@ const DailySchemeBorrower = () => {
     }
   };
 
+  const handleDiscountSubmit = async () => {
+    if (!discountAmount || isNaN(discountAmount)) {
+      alert('Please enter a valid discount amount');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/installment/adddailyborrowerdiscount`, {
+        borrowerId: selectedBorrower._id,
+        discountAmount: parseFloat(discountAmount)
+      });
+
+      if (response.status === 200) {
+        alert('Discount applied successfully');
+      } else {
+        alert('Error applying discount');
+      }
+    } catch (error) {
+      console.error('Error submitting discount:', error);
+      alert('Error applying discount');
+    }
+  };
+
   if (loading) {
     return <div className="text-center mt-20">Loading...</div>;
   }
@@ -185,6 +209,21 @@ const DailySchemeBorrower = () => {
               </div>
               <div className="mb-4 text-lg font-semibold text-green-600">
                 {installments.filter(inst => inst.paid).length} {installments.filter(inst => inst.paid).length === 1 ? 'Installment' : 'Installments'} paid
+              </div>
+              <div className="mb-4 flex items-center">
+                <input
+                  type="number"
+                  className="mr-2 p-2 border rounded"
+                  placeholder="Discount amount"
+                  value={discountAmount}
+                  onChange={(e) => setDiscountAmount(e.target.value)}
+                />
+                <button
+                  className="bg-green-500 text-white p-2 rounded flex items-center hover:bg-green-600 transition-colors"
+                  onClick={handleDiscountSubmit}
+                >
+                  <FaPercent className="mr-2" /> Apply Discount
+                </button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {installments.map((installment, index) => (
