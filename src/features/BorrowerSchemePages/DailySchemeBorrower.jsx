@@ -25,17 +25,29 @@ const DailySchemeBorrower = () => {
     fetchDailyBorrowers();
   }, []);
 
-  const generateInstallments = (borrower) => {
+  const formatDate = (date) => {
+    const d = new Date(date);
+    return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+  };
+
+  const generateInstallments = (borrower, paidInstallments) => {
     const installments = [];
     const startDate = new Date(borrower.loanStartDate);
     const endDate = new Date(borrower.loanEndDate);
     let currentDate = new Date(startDate);
 
     while (currentDate <= endDate) {
+      const formattedDate = formatDate(currentDate);
+      const paidInstallment = paidInstallments.find(inst => {
+        const paidDate = formatDate(inst.date);
+        return paidDate === formattedDate;
+      });
+
       installments.push({
         date: new Date(currentDate),
-        amount: borrower.emiAmount,
-        status: 'Pending'
+        demandedAmount: borrower.emiAmount,
+        receivedAmount: paidInstallment ? paidInstallment.receivedAmount : 0,
+        paid: paidInstallment ? paidInstallment.paid : false
       });
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -43,11 +55,24 @@ const DailySchemeBorrower = () => {
     return installments;
   };
 
-  useEffect(() => {
-    if (selectedBorrower) {
-      setInstallments(generateInstallments(selectedBorrower));
+  const fetchInstallments = async (borrowerId) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/installment/fetchdailyinstallment`, {
+        params: { borrowerId }
+      });
+      return response.data.installments;
+    } catch (error) {
+      console.error('Error fetching installments:', error);
+      return [];
     }
-  }, [selectedBorrower]);
+  };
+
+  const handleBorrowerSelect = async (borrower) => {
+    setSelectedBorrower(borrower);
+    const paidInstallments = await fetchInstallments(borrower._id);
+    const generatedInstallments = generateInstallments(borrower, paidInstallments);
+    setInstallments(generatedInstallments);
+  };
 
   const handleReceivedAmountChange = (date, amount) => {
     setReceivedAmounts(prev => ({
@@ -57,29 +82,39 @@ const DailySchemeBorrower = () => {
   };
 
   const handleSubmitPayment = async (installment) => {
-    const receivedAmount = receivedAmounts[installment.date.toLocaleDateString()] || 0;
-    // Here you would typically send this data to your backend
-    console.log(`Payment submitted for ${installment.date.toLocaleDateString()}: ${receivedAmount}`);
+    const receivedAmount = parseFloat(receivedAmounts[formatDate(installment.date)] || 0);
     
-    // Update the installment status locally
+    const updatedInstallment = {
+      date: installment.date.toISOString().split('T')[0], // Format as YYYY-MM-DD
+      demandedAmount: installment.demandedAmount,
+      receivedAmount: receivedAmount,
+      paid: receivedAmount >= installment.demandedAmount
+    };
+
     setInstallments(prev => prev.map(inst => 
       inst.date.getTime() === installment.date.getTime() 
-        ? {...inst, status: 'Paid', paidAmount: receivedAmount} 
+        ? {...inst, receivedAmount, paid: receivedAmount >= inst.demandedAmount}
         : inst
     ));
 
-    // Clear the received amount for this installment
     setReceivedAmounts(prev => {
-      const { [installment.date.toLocaleDateString()]: _, ...rest } = prev;
+      const { [formatDate(installment.date)]: _, ...rest } = prev;
       return rest;
     });
 
-    // Here you would typically update the backend
-    // await axios.post(`${process.env.REACT_APP_BACKEND_URL}/updatePayment`, {
-    //   borrowerId: selectedBorrower._id,
-    //   installmentDate: installment.date,
-    //   paidAmount: receivedAmount
-    // });
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/installment/adddailyinstallment`, {
+        borrowerId: selectedBorrower._id,
+        installment: updatedInstallment
+      });
+      if (response.status === 200) {
+        console.log('Installment added successfully');
+      } else {
+        console.log('Error adding installment');
+      }
+    } catch (error) {
+      console.error('Error submitting payment:', error);
+    }
   };
 
   if (loading) {
@@ -109,14 +144,14 @@ const DailySchemeBorrower = () => {
               {dailyBorrowers.map((borrower) => (
                 <tr 
                   key={borrower._id} 
-                  onClick={() => setSelectedBorrower(borrower)}
+                  onClick={() => handleBorrowerSelect(borrower)}
                   className="cursor-pointer hover:bg-gray-100"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">{borrower.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap">₹{borrower.principleAmount}</td>
                   <td className="px-6 py-4 whitespace-nowrap">₹{borrower.refundAmount}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{new Date(borrower.loanStartDate).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{new Date(borrower.loanEndDate).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{formatDate(borrower.loanStartDate)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{formatDate(borrower.loanEndDate)}</td>
                   <td className="px-6 py-4 whitespace-nowrap">₹{borrower.emiAmount}</td>
                 </tr>
               ))}
@@ -133,19 +168,19 @@ const DailySchemeBorrower = () => {
                   key={index} 
                   className="border p-4 rounded text-center"
                 >
-                  <div className="font-bold">{installment.date.toLocaleDateString()}</div>
-                  <div>EMI: ₹{installment.amount}</div>
-                  <div className={`text-sm ${installment.status === 'Pending' ? 'text-red-500' : 'text-green-500'}`}>
-                    {installment.status}
+                  <div className="font-bold">{formatDate(installment.date)}</div>
+                  <div>EMI: ₹{installment.demandedAmount}</div>
+                  <div className={`text-sm ${installment.paid ? 'text-green-500' : 'text-red-500'}`}>
+                    {installment.paid ? 'Paid' : 'Pending'}
                   </div>
-                  {installment.status === 'Pending' && (
+                  {!installment.paid && (
                     <>
                       <input 
                         type="number" 
                         className="mt-2 w-full p-2 border rounded"
                         placeholder="Received amount"
-                        value={receivedAmounts[installment.date.toLocaleDateString()] || ''}
-                        onChange={(e) => handleReceivedAmountChange(installment.date.toLocaleDateString(), e.target.value)}
+                        value={receivedAmounts[formatDate(installment.date)] || ''}
+                        onChange={(e) => handleReceivedAmountChange(formatDate(installment.date), e.target.value)}
                       />
                       <button 
                         className="mt-2 bg-blue-500 text-white p-2 rounded w-full"
@@ -155,8 +190,8 @@ const DailySchemeBorrower = () => {
                       </button>
                     </>
                   )}
-                  {installment.status === 'Paid' && (
-                    <div className="mt-2">Paid: ₹{installment.paidAmount}</div>
+                  {installment.paid && (
+                    <div className="mt-2">Paid: ₹{installment.receivedAmount}</div>
                   )}
                 </div>
               ))}
