@@ -27,6 +27,13 @@ const DailySchemeBorrower = () => {
     fetchDailyBorrowers();
   }, []);
 
+  // Calculate total balance amount
+  const totalBalanceAmount = dailyBorrowers.reduce((total, borrower) => total + borrower.balanceAmount, 0);
+
+  // Calculate total active and closed borrowers
+  const totalActiveBorrowers = dailyBorrowers.filter(borrower => borrower.loanStatus === 'pending').length;
+  const totalClosedAccounts = dailyBorrowers.filter(borrower => borrower.loanStatus === 'closed').length;
+
   const formatDate = (date) => {
     const d = new Date(date);
     return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
@@ -156,6 +163,11 @@ const DailySchemeBorrower = () => {
       <div className="max-w-7xl mx-auto">
         <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
           <div className="overflow-x-auto">
+            <div className="p-4">
+              <h3 className="text-md font-semibold">Total Balance Amount: ₹{totalBalanceAmount}</h3>
+              <h4 className="text-md font-semibold">Total Active Borrowers: {totalActiveBorrowers}</h4>
+              <h4 className="text-md font-semibold">Total Closed Accounts: {totalClosedAccounts}</h4>
+            </div>
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
