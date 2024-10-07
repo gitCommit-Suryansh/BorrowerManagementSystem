@@ -38,18 +38,9 @@ const DailySchemeBorrower = () => {
   }, []);
 
   // Calculate total balance amount
-  const totalBalanceAmount = dailyBorrowers.reduce(
-    (total, borrower) => total + borrower.balanceAmount,
-    0
-  );
-
-  // Calculate total active and closed borrowers
-  const totalActiveBorrowers = dailyBorrowers.filter(
-    (borrower) => borrower.loanStatus === "pending"
-  ).length;
-  const totalClosedAccounts = dailyBorrowers.filter(
-    (borrower) => borrower.loanStatus === "closed"
-  ).length;
+  const totalBalanceAmount = dailyBorrowers.reduce((total, borrower) => total + borrower.balanceAmount,0);
+  const totalActiveBorrowers = dailyBorrowers.filter((borrower) => borrower.loanStatus === "pending").length;
+  const totalClosedAccounts = dailyBorrowers.filter((borrower) => borrower.loanStatus === "closed").length;
 
   const formatDate = (date) => {
     const d = new Date(date);
@@ -200,6 +191,7 @@ const DailySchemeBorrower = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
       <div className="max-w-7xl mx-auto">
+        <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">DAILY SCHEME LOANS</h2>
         <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
           <div className="overflow-x-auto">
             <div className="p-4">
@@ -213,7 +205,7 @@ const DailySchemeBorrower = () => {
               </h4>
               <h4 className="text-md font-semibold flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full bg-green-500 inline-block"></span>
-                <span> Total Active Accounts: {totalClosedAccounts} </span>
+                <span> Total Closed Accounts: {totalClosedAccounts} </span>
               </h4>
             </div>
             <table className="min-w-full divide-y divide-gray-200">
