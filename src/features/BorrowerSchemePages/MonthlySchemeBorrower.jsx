@@ -353,7 +353,7 @@ const MonthlySchemeBorrower = () => {
                 ))}
 
                 {/* New Card for Principal Repayment */}
-                <div className="border p-4 rounded-lg shadow-md bg-gradient-to-br from-white to-gray-100 mt-4 col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
+               {selectedBorrower.balanceAmount !==0 &&  <div className="border p-4 rounded-lg shadow-md bg-gradient-to-br from-white to-gray-100 mt-4 col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
                   <h3 className="text-lg font-semibold text-center">
                     Principal Amount Repayment
                   </h3>
@@ -366,7 +366,7 @@ const MonthlySchemeBorrower = () => {
                   >
                     Submit Principal Repayment
                   </button>
-                </div>
+                </div>}
               </div>
             </div>
           </div>
