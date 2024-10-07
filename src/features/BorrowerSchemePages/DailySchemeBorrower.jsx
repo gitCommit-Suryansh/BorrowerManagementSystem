@@ -178,12 +178,20 @@ const DailySchemeBorrower = () => {
                     className="cursor-pointer hover:bg-gray-100"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`w-4 h-4 rounded-full ${borrower.refundedAmount === borrower.refundAmount ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+                      <div className={`w-4 h-4 rounded-full ${borrower.balanceAmount==0 ? 'bg-green-500' : 'bg-orange-500'}`}></div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">{borrower.name}</td>
                     <td className="px-6 py-4 whitespace-nowrap">₹{borrower.principleAmount}</td>
                     <td className="px-6 py-4 whitespace-nowrap">₹{borrower.refundAmount}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">₹{borrower.refundedAmount}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      ₹{borrower.refundedAmount}
+                      {borrower.discount > 0 && (
+                        <>
+                          <span className="text-green-500">*</span>
+                          <span className="text-xs text-gray-500">(-₹{borrower.discount})</span>
+                        </>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">₹{borrower.balanceAmount}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{formatDate(borrower.loanStartDate)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{formatDate(borrower.loanEndDate)}</td>
