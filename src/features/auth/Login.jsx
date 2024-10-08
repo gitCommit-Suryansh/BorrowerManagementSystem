@@ -16,7 +16,7 @@ const Login = () => {
         const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
         if (response.status === 200) {
           // setMessage("Borrower registered successfully");
-          console.log(response.data.message)
+          console.log(response.data)
         } else {
           console.log(response.data)
           // setMessage("Failed to register borrower");
