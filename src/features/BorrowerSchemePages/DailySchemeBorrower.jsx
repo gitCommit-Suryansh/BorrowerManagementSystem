@@ -20,6 +20,10 @@ const DailySchemeBorrower = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState("");
 
+  // New state variables for profit and loss
+  const [totalProfit, setTotalProfit] = useState(0);
+  const [totalLoss, setTotalLoss] = useState(0);
+
   useEffect(() => {
     const fetchDailyBorrowers = async () => {
       try {
@@ -28,6 +32,9 @@ const DailySchemeBorrower = () => {
         );
         setDailyBorrowers(response.data.dailyBorrowers);
         setLoading(false);
+
+        // Calculate profit and loss after fetching borrowers
+        calculateProfitAndLoss(response.data.dailyBorrowers);
       } catch (err) {
         setError("Error fetching daily borrowers");
         setLoading(false);
@@ -35,12 +42,36 @@ const DailySchemeBorrower = () => {
     };
 
     fetchDailyBorrowers();
-  }, []);
+  }, [dailyBorrowers]);
+
+  // New function to calculate profit and loss
+  const calculateProfitAndLoss = (borrowers) => {
+    let profit = 0;
+    let loss = 0;
+
+    borrowers.forEach((borrower) => {
+      if (borrower.balanceAmount > 0) {
+        profit += borrower.refundAmount-borrower.principleAmount; // Assuming balanceAmount represents profit
+      } else {
+        loss += Math.abs(borrower.balanceAmount); // Loss is the absolute value of negative balance
+      }
+    });
+
+    setTotalProfit(profit);
+    setTotalLoss(loss);
+  };
 
   // Calculate total balance amount
-  const totalBalanceAmount = dailyBorrowers.reduce((total, borrower) => total + borrower.balanceAmount,0);
-  const totalActiveBorrowers = dailyBorrowers.filter((borrower) => borrower.loanStatus === "pending").length;
-  const totalClosedAccounts = dailyBorrowers.filter((borrower) => borrower.loanStatus === "closed").length;
+  const totalBalanceAmount = dailyBorrowers.reduce(
+    (total, borrower) => total + borrower.balanceAmount,
+    0
+  );
+  const totalActiveBorrowers = dailyBorrowers.filter(
+    (borrower) => borrower.loanStatus === "pending"
+  ).length;
+  const totalClosedAccounts = dailyBorrowers.filter(
+    (borrower) => borrower.loanStatus === "closed"
+  ).length;
 
   const formatDate = (date) => {
     const d = new Date(date);
@@ -116,21 +147,23 @@ const DailySchemeBorrower = () => {
       date: installment.date.toISOString().split("T")[0], // Format as YYYY-MM-DD
       demandedAmount: installment.demandedAmount,
       receivedAmount: receivedAmount,
-      paid: true,
+      paid: true, // Set paid to true by default
     };
 
+    // Update the installments state immediately
     setInstallments((prev) =>
       prev.map((inst) =>
         inst.date.getTime() === installment.date.getTime()
           ? {
               ...inst,
               receivedAmount,
-              paid: receivedAmount >= inst.demandedAmount,
+              paid: updatedInstallment.paid,
             }
           : inst
       )
     );
 
+    // Clear the received amount for that date
     setReceivedAmounts((prev) => {
       const { [formatDate(installment.date)]: _, ...rest } = prev;
       return rest;
@@ -191,13 +224,23 @@ const DailySchemeBorrower = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">DAILY SCHEME LOANS</h2>
+        <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">
+          DAILY SCHEME LOANS
+        </h2>
         <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
           <div className="overflow-x-auto">
             <div className="p-4">
+              <h4 className="text-md font-semibold">
+                <span> Total Profit: ₹{totalProfit}</span>
+              </h4>
+              {/* <h4 className="text-md font-semibold">
+                <span> Total Loss: ₹{totalLoss}</span>
+              </h4> */}
+              
+            </div>
+            <div className="p-4">
               <h3 className="text-md font-semibold">
-                
-                <span>  Total Balance Amount: ₹{totalBalanceAmount}</span>
+                <span> Total Balance Amount: ₹{totalBalanceAmount}</span>
               </h3>
               <h4 className="text-md font-semibold flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full bg-orange-500 inline-block"></span>
@@ -361,6 +404,19 @@ const DailySchemeBorrower = () => {
                     >
                       {installment.paid ? "Paid" : "Pending"}
                     </div>
+                    {installment.paid && (
+                      <>
+                        <div className="mt-2 text-center text-green-600">
+                          Paid: ₹{installment.receivedAmount}
+                        </div>
+                        {/* New message for pending amount */}
+                        {selectedBorrower.emiAmount > installment.receivedAmount && (
+                          <div className="mt-2 text-center text-red-500 font-bold">
+                            {selectedBorrower.emiAmount - installment.receivedAmount} amount pending
+                          </div>
+                        )}
+                      </>
+                    )}
                     {!installment.paid && (
                       <>
                         <input
@@ -384,11 +440,6 @@ const DailySchemeBorrower = () => {
                           Submit Payment
                         </button>
                       </>
-                    )}
-                    {installment.paid && (
-                      <div className="mt-2 text-center text-green-600">
-                        Paid: ₹{installment.receivedAmount}
-                      </div>
                     )}
                   </div>
                 ))}

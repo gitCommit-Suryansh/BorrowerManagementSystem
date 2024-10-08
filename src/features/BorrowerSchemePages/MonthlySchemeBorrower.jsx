@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  FaUser,
-  FaPhone,
-  FaIdCard,
-  FaMoneyCheckAlt,
-  FaCalendarAlt,
-  FaTimes,
-  FaCheckCircle,
-  FaTimesCircle,
-} from "react-icons/fa";
+import {FaUser,FaPhone,FaIdCard,FaMoneyCheckAlt,FaCalendarAlt,FaTimes,FaCheckCircle,FaTimesCircle,FaPercent,} from "react-icons/fa";
 
 const MonthlySchemeBorrower = () => {
   const [monthlyBorrowers, setMonthlyBorrowers] = useState([]);
@@ -19,6 +10,7 @@ const MonthlySchemeBorrower = () => {
   const [installments, setInstallments] = useState([]);
   const [receivedAmounts, setReceivedAmounts] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [discountAmount, setDiscountAmount] = useState(""); // New state for discount amount
 
   useEffect(() => {
     const fetchMonthlyBorrowers = async () => {
@@ -35,18 +27,11 @@ const MonthlySchemeBorrower = () => {
     };
 
     fetchMonthlyBorrowers();
-  }, []);
+  }, [monthlyBorrowers]);
 
-  const totalBalanceAmount = monthlyBorrowers.reduce(
-    (total, borrower) => total + borrower.balanceAmount,
-    0
-  );
-  const totalActiveBorrowers = monthlyBorrowers.filter(
-    (borrower) => borrower.loanStatus === "pending"
-  ).length;
-  const totalClosedAccounts = monthlyBorrowers.filter(
-    (borrower) => borrower.loanStatus === "closed"
-  ).length;
+  const totalBalanceAmount = monthlyBorrowers.reduce((total, borrower) => total + borrower.balanceAmount,0);
+  const totalActiveBorrowers = monthlyBorrowers.filter((borrower) => borrower.loanStatus === "pending").length;
+  const totalClosedAccounts = monthlyBorrowers.filter((borrower) => borrower.loanStatus === "closed").length;
 
   const generateInstallments = (borrower, paidInstallments) => {
     const installments = [];
@@ -111,6 +96,7 @@ const MonthlySchemeBorrower = () => {
   };
 
   const handleSubmitPayment = async (installment) => {
+    console.log(installment)
     const receivedAmount = parseFloat(
       receivedAmounts[installment.date.toISOString().split("T")[0]] || 0
     );
@@ -118,8 +104,8 @@ const MonthlySchemeBorrower = () => {
     // Create updatedInstallment with only the required keys
     const updatedInstallment = {
       date: installment.date.toISOString().split("T")[0], // Format as YYYY-MM-DD
-      amount: selectedBorrower.interestAmount, // Set amount to borrower's interestAmount
-      paid: true, // Determine if paid based on received amount
+      amount: receivedAmount, // Set amount to the received amount from the input
+      paid: receivedAmount > 0, // Determine if paid based on received amount
     };
 
     setInstallments((prev) =>
@@ -179,6 +165,32 @@ const MonthlySchemeBorrower = () => {
     }
   };
 
+  const handleDiscountSubmit = async () => { // New function to handle discount submission
+    if (!discountAmount || isNaN(discountAmount)) {
+      alert("Please enter a valid discount amount");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/installment/addmonthlyborrowerdiscount`,
+        {
+          borrowerId: selectedBorrower._id,
+          discountAmount: parseFloat(discountAmount),
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Discount applied successfully");
+      } else {
+        alert("Error applying discount");
+      }
+    } catch (error) {
+      console.error("Error submitting discount:", error);
+      alert("Error applying discount");
+    }
+  };
+
   if (loading) {
     return <div className="text-center mt-20">Loading...</div>;
   }
@@ -225,6 +237,10 @@ const MonthlySchemeBorrower = () => {
                     Balance Amount
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Installment
+                  </th>
+
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Start Date
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -256,6 +272,25 @@ const MonthlySchemeBorrower = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       ₹{borrower.balanceAmount}
+                      {borrower.discount > 0 && (
+                        <>
+                          <span className="text-green-500">*</span>
+                          <span className="text-xs text-gray-500">
+                            (-₹{borrower.discount})
+                          </span>
+                        </>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      ₹{borrower.interestAmount}
+                      {borrower.interestPercentage > 0 && (
+                        <>
+                          <span className="text-green-500">*</span>
+                          <span className="text-xs text-gray-500">
+                            ({borrower.interestPercentage}%)
+                          </span>
+                        </>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {new Date(borrower.loanStartDate).toLocaleDateString()}
@@ -282,6 +317,22 @@ const MonthlySchemeBorrower = () => {
                   className="text-gray-500 hover:text-gray-700"
                 >
                   <FaTimes size={24} />
+                </button>
+              </div>
+              {/* New discount input section */}
+              <div className="mb-4 flex items-center">
+                <input
+                  type="number"
+                  className="mr-2 p-2 border rounded"
+                  placeholder="Discount amount"
+                  value={discountAmount}
+                  onChange={(e) => setDiscountAmount(e.target.value)}
+                />
+                <button
+                  className="bg-green-500 text-white p-2 rounded flex items-center hover:bg-green-600 transition-colors"
+                  onClick={handleDiscountSubmit}
+                >
+                  <FaPercent className="mr-2" /> Apply Discount
                 </button>
               </div>
               <h3 className="text-lg font-semibold mb-2 text-green-500">
@@ -319,6 +370,19 @@ const MonthlySchemeBorrower = () => {
                     >
                       {installment.paid ? "Paid" : "Pending"}
                     </div>
+                    {installment.paid && (
+                      <>
+                        <div className="mt-2 text-center text-green-600">
+                          Paid: ₹{installment.receivedAmount}
+                        </div>
+                        {/* New message for pending amount */}
+                        {selectedBorrower.interestAmount > installment.receivedAmount && (
+                          <div className="mt-2 text-center text-red-500">
+                            {selectedBorrower.interestAmount - installment.receivedAmount} amount pending
+                          </div>
+                        )}
+                      </>
+                    )}
                     {!installment.paid && (
                       <>
                         <input
@@ -344,11 +408,6 @@ const MonthlySchemeBorrower = () => {
                           Submit Payment
                         </button>
                       </>
-                    )}
-                    {installment.paid && (
-                      <div className="mt-2 text-center text-green-600">
-                        Paid: ₹{installment.receivedAmount}
-                      </div>
                     )}
                   </div>
                 ))}
