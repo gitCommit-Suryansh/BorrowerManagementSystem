@@ -208,65 +208,66 @@ const MonthlySchemeBorrower = () => {
               <span>Total Closed Accounts: {totalClosedAccounts}</span>
             </h4>
           </div>
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>{" "}
-                {/* New Status Column */}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Principle Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Balance Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Start Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  End Date
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {monthlyBorrowers.map((borrower) => (
-                <tr
-                  key={borrower._id}
-                  onClick={() => handleBorrowerSelect(borrower)}
-                  className="cursor-pointer hover:bg-gray-100"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <div
-                      className={`w-4 h-4 rounded-full ${
-                        borrower.loanStatus === "pending"
-                          ? "bg-orange-500"
-                          : "bg-green-500"
-                      }`}
-                    ></div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {borrower.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    ₹{borrower.principleAmount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    ₹{borrower.balanceAmount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {new Date(borrower.loanStartDate).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {new Date(borrower.loanEndDate).toLocaleDateString()}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Principle Amount
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Balance Amount
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Start Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    End Date
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {monthlyBorrowers.map((borrower) => (
+                  <tr
+                    key={borrower._id}
+                    onClick={() => handleBorrowerSelect(borrower)}
+                    className="cursor-pointer hover:bg-gray-100"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div
+                        className={`w-4 h-4 rounded-full ${
+                          borrower.loanStatus === "pending"
+                            ? "bg-orange-500"
+                            : "bg-green-500"
+                        }`}
+                      ></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {borrower.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      ₹{borrower.principleAmount}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      ₹{borrower.balanceAmount}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {new Date(borrower.loanStartDate).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {new Date(borrower.loanEndDate).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {isModalOpen && selectedBorrower && (

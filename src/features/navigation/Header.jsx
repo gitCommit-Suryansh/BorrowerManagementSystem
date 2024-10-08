@@ -14,6 +14,7 @@ const Header = () => {
             <li><Link to="/home" className="block hover:text-gray-200 transition duration-300">Home</Link></li>
             <li><Link to="/registerdailyborrower" className="block hover:text-gray-200 transition duration-300">Daily Borrower</Link></li>
             <li><Link to="/registermonthlyborrower" className="block hover:text-gray-200 transition duration-300">Monthly Borrower</Link></li>
+            <li><Link to="/" className="block text-white hover:text-gray-200 transition duration-300 font-bold">Logout</Link></li>
           </ul>
           <div className="md:hidden">
             <button onClick={() => setIsOpen(!isOpen)} className="text-white focus:outline-none">
@@ -34,6 +35,7 @@ const Header = () => {
               <li><Link to="/home" className="block text-white hover:text-gray-200 transition duration-300">Home</Link></li>
               <li><Link to="/registerdailyborrower" className="block text-white hover:text-gray-200 transition duration-300">Daily Borrower</Link></li>
               <li><Link to="/registermonthlyborrower" className="block text-white hover:text-gray-200 transition duration-300">Monthly Borrower</Link></li>
+              <li><Link to="/" className="block text-white hover:text-gray-200 transition duration-300 font-bold">Logout</Link></li>
             </ul>
           </div>
         </div>
