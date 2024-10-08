@@ -119,7 +119,7 @@ const MonthlySchemeBorrower = () => {
     const updatedInstallment = {
       date: installment.date.toISOString().split("T")[0], // Format as YYYY-MM-DD
       amount: selectedBorrower.interestAmount, // Set amount to borrower's interestAmount
-      paid: receivedAmount >= selectedBorrower.interestAmount, // Determine if paid based on received amount
+      paid: true, // Determine if paid based on received amount
     };
 
     setInstallments((prev) =>
