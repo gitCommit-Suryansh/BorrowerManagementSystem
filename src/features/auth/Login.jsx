@@ -7,11 +7,14 @@ const Login = () => {
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
-    await axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
+  //  try{
+  //   await axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
+  //  }catch(err){console.log(err)}
     e.preventDefault();
     if(email === 'abcd@abcd.com' && password === '1234'){
         
       navigate('/home');
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
     }
   };
 

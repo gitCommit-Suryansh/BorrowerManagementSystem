@@ -23,7 +23,7 @@ const DailySchemeBorrower = () => {
   // New state variables for profit and loss
   const [totalProfit, setTotalProfit] = useState(0);
   const [totalLoss, setTotalLoss] = useState(0);
-
+  axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
   useEffect(() => {
     const fetchDailyBorrowers = async () => {
       try {

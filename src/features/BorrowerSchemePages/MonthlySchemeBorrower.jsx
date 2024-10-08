@@ -11,7 +11,7 @@ const MonthlySchemeBorrower = () => {
   const [receivedAmounts, setReceivedAmounts] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(""); // New state for discount amount
-
+  axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
   useEffect(() => {
     const fetchMonthlyBorrowers = async () => {
       try {
