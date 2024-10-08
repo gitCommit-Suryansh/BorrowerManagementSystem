@@ -6,24 +6,11 @@ const Login = () => {
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
+    await axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
     e.preventDefault();
-    // TODO: Implement login logic
-    console.log('Login attempt with:', { email, password });
     if(email === 'abcd@abcd.com' && password === '1234'){
         
       navigate('/home');
-      // try {
-      //   const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
-      //   if (response.status === 200) {
-      //     // setMessage("Borrower registered successfully");
-      //     console.log(response.data)
-      //   } else {
-      //     console.log(response.data)
-      //     // setMessage("Failed to register borrower");
-      //   }
-      // } catch (error) {
-      //   console.log(error);
-      // }
     }
   };
 
