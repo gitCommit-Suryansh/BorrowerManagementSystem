@@ -116,7 +116,7 @@ const DailySchemeBorrower = () => {
       date: installment.date.toISOString().split("T")[0], // Format as YYYY-MM-DD
       demandedAmount: installment.demandedAmount,
       receivedAmount: receivedAmount,
-      paid: receivedAmount >= installment.demandedAmount,
+      paid: true,
     };
 
     setInstallments((prev) =>
