@@ -65,11 +65,14 @@ const RegisterDailyBorrower = () => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/auth/registerdailyborrower`,formData);
       if (response.status === 200) {
+        alert("Borrower registered successfully")
         setMessage("Borrower registered successfully");
       } else {
+        alert("Failed to register borrower")
         setMessage("Failed to register borrower");
       }
     } catch (error) {
+      alert("Error registering borrower:", error)
       setMessage("Error registering borrower:", error);
       console.log(error);
     }

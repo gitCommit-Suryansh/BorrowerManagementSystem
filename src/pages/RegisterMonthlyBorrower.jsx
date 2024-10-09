@@ -77,14 +77,14 @@ const RegisterMonthlyBorrower = () => {
         formData
       );
       if (response.status === 200) {
-        console.log("Monthly Borrower registered successfully");
+        alert("Monthly Borrower registered successfully");
         setMessage("Monthly Borrower registered successfully");
       } else {
-        console.error("Failed to register monthly borrower");
+        alert("Failed to register monthly borrower");
         setMessage("Failed to register monthly borrower");
       }
     } catch (error) {
-      console.error("Error registering monthly borrower:", error);
+      alert("Error registering monthly borrower:", error);
       setMessage("Error registering monthly borrower:", error);
     }
   };
