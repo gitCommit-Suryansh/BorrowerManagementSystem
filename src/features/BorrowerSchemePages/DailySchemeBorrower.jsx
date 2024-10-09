@@ -20,6 +20,9 @@ const DailySchemeBorrower = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState("");
 
+  // New state variable for search query
+  const [searchQuery, setSearchQuery] = useState("");
+
   // New state variables for profit and loss
   const [totalProfit, setTotalProfit] = useState(0);
   const [totalLoss, setTotalLoss] = useState(0);
@@ -227,6 +230,18 @@ const DailySchemeBorrower = () => {
         <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">
           DAILY SCHEME LOANS
         </h2>
+        
+        {/* New Search Bar */}
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search by name..."
+            className="p-2 border rounded w-full"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
         <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
           <div className="overflow-x-auto">
             <div className="p-4">
@@ -236,7 +251,6 @@ const DailySchemeBorrower = () => {
               {/* <h4 className="text-md font-semibold">
                 <span> Total Loss: ₹{totalLoss}</span>
               </h4> */}
-              
             </div>
             <div className="p-4">
               <h3 className="text-md font-semibold">
@@ -284,55 +298,59 @@ const DailySchemeBorrower = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {dailyBorrowers.map((borrower) => (
-                  <tr
-                    key={borrower._id}
-                    onClick={() => handleBorrowerSelect(borrower)}
-                    className="cursor-pointer hover:bg-gray-100"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div
-                        className={`w-4 h-4 rounded-full ${
-                          borrower.balanceAmount == 0
-                            ? "bg-green-500"
-                            : "bg-orange-500"
-                        }`}
-                      ></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {borrower.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ₹{borrower.principleAmount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ₹{borrower.refundAmount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ₹{borrower.refundedAmount}
-                      {borrower.discount > 0 && (
-                        <>
-                          <span className="text-green-500">*</span>
-                          <span className="text-xs text-gray-500">
-                            (-₹{borrower.discount})
-                          </span>
-                        </>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ₹{borrower.balanceAmount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {formatDate(borrower.loanStartDate)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {formatDate(borrower.loanEndDate)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ₹{borrower.emiAmount}
-                    </td>
-                  </tr>
-                ))}
+                {dailyBorrowers
+                  .filter((borrower) =>
+                    borrower.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((borrower) => (
+                    <tr
+                      key={borrower._id}
+                      onClick={() => handleBorrowerSelect(borrower)}
+                      className="cursor-pointer hover:bg-gray-100"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div
+                          className={`w-4 h-4 rounded-full ${
+                            borrower.balanceAmount == 0
+                              ? "bg-green-500"
+                              : "bg-orange-500"
+                          }`}
+                        ></div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {borrower.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        ₹{borrower.principleAmount}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        ₹{borrower.refundAmount}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        ₹{borrower.refundedAmount}
+                        {borrower.discount > 0 && (
+                          <>
+                            <span className="text-green-500">*</span>
+                            <span className="text-xs text-gray-500">
+                              (-₹{borrower.discount})
+                            </span>
+                          </>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        ₹{borrower.balanceAmount}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {formatDate(borrower.loanStartDate)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {formatDate(borrower.loanEndDate)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        ₹{borrower.emiAmount}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

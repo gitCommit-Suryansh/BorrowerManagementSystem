@@ -11,6 +11,10 @@ const MonthlySchemeBorrower = () => {
   const [receivedAmounts, setReceivedAmounts] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(""); // New state for discount amount
+
+  // New state variable for search query
+  const [searchQuery, setSearchQuery] = useState("");
+
   axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
   useEffect(() => {
     const fetchMonthlyBorrowers = async () => {
@@ -206,6 +210,17 @@ const MonthlySchemeBorrower = () => {
           MONTHLY SCHEME LOANS
         </h2>
 
+        {/* New Search Bar */}
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search by name..."
+            className="p-2 border rounded w-full"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
         <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
           <div className="p-4">
             <h3 className="text-md font-semibold">
@@ -239,7 +254,6 @@ const MonthlySchemeBorrower = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Installment
                   </th>
-
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Start Date
                   </th>
@@ -249,57 +263,61 @@ const MonthlySchemeBorrower = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {monthlyBorrowers.map((borrower) => (
-                  <tr
-                    key={borrower._id}
-                    onClick={() => handleBorrowerSelect(borrower)}
-                    className="cursor-pointer hover:bg-gray-100"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div
-                        className={`w-4 h-4 rounded-full ${
-                          borrower.loanStatus === "pending"
-                            ? "bg-orange-500"
-                            : "bg-green-500"
-                        }`}
-                      ></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {borrower.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ₹{borrower.principleAmount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ₹{borrower.balanceAmount}
-                      {borrower.discount > 0 && (
-                        <>
-                          <span className="text-green-500">*</span>
-                          <span className="text-xs text-gray-500">
-                            (-₹{borrower.discount})
-                          </span>
-                        </>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ₹{borrower.interestAmount}
-                      {borrower.interestPercentage > 0 && (
-                        <>
-                          <span className="text-green-500">*</span>
-                          <span className="text-xs text-gray-500">
-                            ({borrower.interestPercentage}%)
-                          </span>
-                        </>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {new Date(borrower.loanStartDate).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {new Date(borrower.loanEndDate).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
+                {monthlyBorrowers
+                  .filter((borrower) =>
+                    borrower.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((borrower) => (
+                    <tr
+                      key={borrower._id}
+                      onClick={() => handleBorrowerSelect(borrower)}
+                      className="cursor-pointer hover:bg-gray-100"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div
+                          className={`w-4 h-4 rounded-full ${
+                            borrower.loanStatus === "pending"
+                              ? "bg-orange-500"
+                              : "bg-green-500"
+                          }`}
+                        ></div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {borrower.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        ₹{borrower.principleAmount}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        ₹{borrower.balanceAmount}
+                        {borrower.discount > 0 && (
+                          <>
+                            <span className="text-green-500">*</span>
+                            <span className="text-xs text-gray-500">
+                              (-₹{borrower.discount})
+                            </span>
+                          </>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        ₹{borrower.interestAmount}
+                        {borrower.interestPercentage > 0 && (
+                          <>
+                            <span className="text-green-500">*</span>
+                            <span className="text-xs text-gray-500">
+                              ({borrower.interestPercentage}%)
+                            </span>
+                          </>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {new Date(borrower.loanStartDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {new Date(borrower.loanEndDate).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -339,7 +357,7 @@ const MonthlySchemeBorrower = () => {
                 {selectedBorrower.installments.length} {selectedBorrower.installments.length > 1 ? "Installments" : "Installment"} paid {/* Total Count of Installments */}
               </h3>
               <h3 className="text-lg font-semibold mb-2 text-green-500">
-                {selectedBorrower.balanceAmount=== 0 ? <span>Principle Amount Paid Back</span> : <span className="text-red-500">Principle Amount Not-Paid Yet</span>}{/* Total Count of Installments */}
+                {selectedBorrower.balanceAmount === 0 ? <span>Principle Amount Paid Back</span> : <span className="text-red-500">Principle Amount Not-Paid Yet</span>}{/* Total Count of Installments */}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {installments.map((installment, index) => (
@@ -389,11 +407,7 @@ const MonthlySchemeBorrower = () => {
                           type="number"
                           className="mt-2 w-full p-2 border rounded"
                           placeholder="Received amount"
-                          value={
-                            receivedAmounts[
-                              installment.date.toISOString().split("T")[0]
-                            ] || ""
-                          }
+                          value={receivedAmounts[installment.date.toISOString().split("T")[0]] || ""}
                           onChange={(e) =>
                             handleReceivedAmountChange(
                               installment.date.toISOString().split("T")[0],
@@ -413,7 +427,7 @@ const MonthlySchemeBorrower = () => {
                 ))}
 
                 {/* New Card for Principal Repayment */}
-               {selectedBorrower.balanceAmount !==0 &&  <div className="border p-4 rounded-lg shadow-md bg-gradient-to-br from-white to-gray-100 mt-4 col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
+                {selectedBorrower.balanceAmount !== 0 && <div className="border p-4 rounded-lg shadow-md bg-gradient-to-br from-white to-gray-100 mt-4 col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
                   <h3 className="text-lg font-semibold text-center">
                     Principal Amount Repayment
                   </h3>
