@@ -7,7 +7,6 @@ import {
   FaMoneyCheckAlt,
   FaCoins,
   FaCalendarAlt,
-  FaClipboardList,
 } from "react-icons/fa";
 import axios from "axios";
 
@@ -27,6 +26,7 @@ const RegisterMonthlyBorrower = () => {
     loanStartDate: new Date().toISOString().split("T")[0], // Set default to today's date
     loanEndDate: "",
     balanceAmount: "",
+    address: "", // Added address field
   });
 
   const handleChange = (e) => {
@@ -282,6 +282,22 @@ const RegisterMonthlyBorrower = () => {
                 value={formData.balanceAmount}
                 readOnly
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="address"
+                className="block text-sm font-medium text-gray-700 mb-1 flex items-center"
+              >
+                <FaIdCard className="mr-2" /> Address
+              </label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                required
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                onChange={handleChange}
               />
             </div>
           </div>
