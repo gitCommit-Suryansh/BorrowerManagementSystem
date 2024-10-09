@@ -43,6 +43,9 @@ const MonthlySchemeBorrower = () => {
     const endDate = new Date(borrower.loanEndDate);
     let currentDate = new Date(startDate);
 
+    // Move to the next month after the start date
+    currentDate.setMonth(currentDate.getMonth() + 1); // Start from the month after the start date
+
     while (currentDate <= endDate) {
       const formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
       const paidInstallment = paidInstallments.find((inst) => {
