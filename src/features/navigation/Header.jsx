@@ -12,8 +12,8 @@ const Header = () => {
         <nav className="ml-auto">
           <ul className="hidden md:flex space-x-7">
             <li><Link to="/home" className="block hover:text-gray-200 transition duration-300">Home</Link></li>
-            <li><Link to="/registerdailyborrower" className="block hover:text-gray-200 transition duration-300">Daily Borrower</Link></li>
-            <li><Link to="/registermonthlyborrower" className="block hover:text-gray-200 transition duration-300">Monthly Borrower</Link></li>
+            <li><Link to="/dailyborrower" className="block hover:text-gray-200 transition duration-300">Daily Borrower</Link></li>
+            <li><Link to="/monthlyborrower" className="block hover:text-gray-200 transition duration-300">Monthly Borrower</Link></li>
             <li><Link to="/" className="block text-white hover:text-gray-200 transition duration-300 font-bold">Logout</Link></li>
           </ul>
           <div className="md:hidden">
@@ -33,8 +33,8 @@ const Header = () => {
             </button>
             <ul className="space-y-4">
               <li><Link to="/home" className="block text-white hover:text-gray-200 transition duration-300">Home</Link></li>
-              <li><Link to="/registerdailyborrower" className="block text-white hover:text-gray-200 transition duration-300">Daily Borrower</Link></li>
-              <li><Link to="/registermonthlyborrower" className="block text-white hover:text-gray-200 transition duration-300">Monthly Borrower</Link></li>
+              <li><Link to="/dailyborrower" className="block text-white hover:text-gray-200 transition duration-300">Daily Borrower</Link></li>
+              <li><Link to="/monthlyborrower" className="block text-white hover:text-gray-200 transition duration-300">Monthly Borrower</Link></li>
               <li><Link to="/" className="block text-white hover:text-gray-200 transition duration-300 font-bold">Logout</Link></li>
             </ul>
           </div>
