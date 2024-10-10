@@ -20,6 +20,9 @@ const DailySchemeBorrower = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState("");
 
+  // New state variable for today's total collection
+  const [todaysTotalCollection, setTodaysTotalCollection] = useState(0);
+
   // New state variable for search query
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -27,6 +30,7 @@ const DailySchemeBorrower = () => {
   const [totalProfit, setTotalProfit] = useState(0);
   const [totalLoss, setTotalLoss] = useState(0);
   axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
+
   useEffect(() => {
     const fetchDailyBorrowers = async () => {
       try {
@@ -38,6 +42,9 @@ const DailySchemeBorrower = () => {
 
         // Calculate profit and loss after fetching borrowers
         calculateProfitAndLoss(response.data.dailyBorrowers);
+
+        // Calculate today's total collection after fetching borrowers
+        calculateTodaysTotalCollection(response.data.dailyBorrowers);
       } catch (err) {
         setError("Error fetching daily borrowers");
         setLoading(false);
@@ -47,6 +54,29 @@ const DailySchemeBorrower = () => {
     fetchDailyBorrowers();
   }, [dailyBorrowers]);
 
+  // New function to calculate today's total collection
+  const calculateTodaysTotalCollection = (borrowers) => {
+    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+    const total = borrowers.reduce((sum, borrower) => {
+      return (
+        sum +
+        (borrower.installments || []).reduce((acc, inst) => {
+          // Check if the installment is paid and the paidOn date is today
+          if (inst.paid && inst.paidOn && inst.paidOn.split("T")[0] === today) {
+            return acc + inst.receivedAmount; // Sum the receivedAmount
+          }
+          return acc; // Otherwise, return the accumulated value
+        }, 0)
+      );
+    }, 0);
+    setTodaysTotalCollection(total); // Set the total collection
+  };
+
+  // Call calculateTodaysTotalCollection whenever dailyBorrowers change
+  useEffect(() => {
+    calculateTodaysTotalCollection(dailyBorrowers);
+  }, [dailyBorrowers]);
+
   // New function to calculate profit and loss
   const calculateProfitAndLoss = (borrowers) => {
     let profit = 0;
@@ -54,7 +84,7 @@ const DailySchemeBorrower = () => {
 
     borrowers.forEach((borrower) => {
       if (borrower.balanceAmount > 0) {
-        profit += borrower.refundAmount-borrower.principleAmount; // Assuming balanceAmount represents profit
+        profit += borrower.refundAmount - borrower.principleAmount; // Assuming balanceAmount represents profit
       } else {
         loss += Math.abs(borrower.balanceAmount); // Loss is the absolute value of negative balance
       }
@@ -152,7 +182,7 @@ const DailySchemeBorrower = () => {
       demandedAmount: installment.demandedAmount,
       receivedAmount: receivedAmount,
       paid: true, // Set paid to true by default
-      paidOn: receivedAmount>0 ? new Date().toISOString():null // Set paidOn to today's date
+      paidOn: receivedAmount > 0 ? new Date().toISOString() : null, // Set paidOn to today's date
     };
 
     // Update the installments state immediately
@@ -233,7 +263,7 @@ const DailySchemeBorrower = () => {
         <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">
           DAILY SCHEME LOANS
         </h2>
-        
+
         {/* New Search Bar */}
         <div className="mb-4">
           <input
@@ -245,28 +275,34 @@ const DailySchemeBorrower = () => {
           />
         </div>
 
+        {/* Display Today's Total Collection */}
+
         <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
           <div className="overflow-x-auto">
-            <div className="p-4">
-              <h4 className="text-md font-semibold">
-                <span> Total Profit: ₹{totalProfit}</span>
-              </h4>
-              {/* <h4 className="text-md font-semibold">
-                <span> Total Loss: ₹{totalLoss}</span>
-              </h4> */}
-            </div>
-            <div className="p-4">
-              <h3 className="text-md font-semibold">
-                <span> Total Balance Amount: ₹{totalBalanceAmount}</span>
-              </h3>
-              <h4 className="text-md font-semibold flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full bg-orange-500 inline-block"></span>
-                <span> Total Active Accounts: {totalActiveBorrowers} </span>
-              </h4>
-              <h4 className="text-md font-semibold flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full bg-green-500 inline-block"></span>
-                <span> Total Closed Accounts: {totalClosedAccounts} </span>
-              </h4>
+            <div className="p-4 flex flex-wrap justify-between">
+              <div>
+                <h4 className="text-md font-semibold">
+                  <span> Today's Total Collection: ₹{todaysTotalCollection}</span>
+                </h4>
+                <h4 className="text-md font-semibold">
+                  <span> Total Profit: ₹{totalProfit}</span>
+                </h4>
+              </div>
+              <div>
+                <h3 className="text-md font-semibold">
+                  <span> Total Balance Amount: ₹{totalBalanceAmount}</span>
+                </h3>
+                <div className="flex flex-col">
+                  <h4 className="text-md font-semibold flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-orange-500 inline-block"></span>
+                    <span> Total Active Accounts: {totalActiveBorrowers} </span>
+                  </h4>
+                  <h4 className="text-md font-semibold flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-green-500 inline-block"></span>
+                    <span> Total Closed Accounts: {totalClosedAccounts} </span>
+                  </h4>
+                </div>
+              </div>
             </div>
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -303,7 +339,9 @@ const DailySchemeBorrower = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {dailyBorrowers
                   .filter((borrower) =>
-                    borrower.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    borrower.name
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase())
                   )
                   .map((borrower) => (
                     <tr
@@ -404,11 +442,14 @@ const DailySchemeBorrower = () => {
                     <div className="flex items-center justify-center mb-2">
                       <FaCalendarAlt className="text-blue-500 mr-2" />
                       <div className="text-lg font-semibold">
-                        {new Date(installment.date).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
+                        {new Date(installment.date).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
                       </div>
                     </div>
                     <div className="text-center text-gray-600">
@@ -428,11 +469,15 @@ const DailySchemeBorrower = () => {
                         </div>
                         {installment.paidOn && (
                           <div className="mt-1 text-center text-gray-500">
-                            Paid on: {new Date(installment.paidOn).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
+                            Paid on:{" "}
+                            {new Date(installment.paidOn).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )}
                           </div>
                         )}
                       </>
