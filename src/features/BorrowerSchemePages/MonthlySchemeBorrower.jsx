@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {FaUser,FaPhone,FaIdCard,FaMoneyCheckAlt,FaCalendarAlt,FaTimes,FaCheckCircle,FaTimesCircle,FaPercent,} from "react-icons/fa";
+import {
+  FaUser,
+  FaPhone,
+  FaIdCard,
+  FaMoneyCheckAlt,
+  FaCalendarAlt,
+  FaTimes,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaPercent,
+} from "react-icons/fa";
 
 const MonthlySchemeBorrower = () => {
   const [monthlyBorrowers, setMonthlyBorrowers] = useState([]);
@@ -11,6 +21,9 @@ const MonthlySchemeBorrower = () => {
   const [receivedAmounts, setReceivedAmounts] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(""); // New state for discount amount
+
+  // New state variable for today's total collection
+  const [todaysTotalCollection, setTodaysTotalCollection] = useState(0);
 
   // New state variable for search query
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,6 +37,9 @@ const MonthlySchemeBorrower = () => {
         );
         setMonthlyBorrowers(response.data.monthlyBorrowers);
         setLoading(false);
+
+        // Calculate today's total collection after fetching borrowers
+        calculateTodaysTotalCollection(response.data.monthlyBorrowers);
       } catch (err) {
         setError("Error fetching monthly borrowers");
         setLoading(false);
@@ -33,13 +49,43 @@ const MonthlySchemeBorrower = () => {
     fetchMonthlyBorrowers();
   }, [monthlyBorrowers]);
 
-  const totalBalanceAmount = monthlyBorrowers.reduce((total, borrower) => total + borrower.balanceAmount,0);
-  const totalActiveBorrowers = monthlyBorrowers.filter((borrower) => borrower.loanStatus === "pending").length;
-  const totalClosedAccounts = monthlyBorrowers.filter((borrower) => borrower.loanStatus === "closed").length;
+  // New function to calculate today's total collection
+  const calculateTodaysTotalCollection = (borrowers) => {
+    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+    const total = borrowers.reduce((sum, borrower) => {
+      return (
+        sum +
+        (borrower.installments || []).reduce((acc, inst) => {
+          // Check if the installment is paid and the paidOn date is today
+          if (inst.paid && inst.paidOn && inst.paidOn.split("T")[0] === today) {
+            return acc + inst.amount; // Sum the receivedAmount
+          }
+          return acc; // Otherwise, return the accumulated value
+        }, 0)
+      );
+    }, 0);
+    setTodaysTotalCollection(total); // Set the total collection
+  };
+
+  // Call calculateTodaysTotalCollection whenever monthlyBorrowers change
+  useEffect(() => {
+    calculateTodaysTotalCollection(monthlyBorrowers);
+  }, [monthlyBorrowers]);
+
+  const totalBalanceAmount = monthlyBorrowers.reduce(
+    (total, borrower) => total + borrower.balanceAmount,
+    0
+  );
+  const totalActiveBorrowers = monthlyBorrowers.filter(
+    (borrower) => borrower.loanStatus === "pending"
+  ).length;
+  const totalClosedAccounts = monthlyBorrowers.filter(
+    (borrower) => borrower.loanStatus === "closed"
+  ).length;
 
   const generateInstallments = (borrower, paidInstallments) => {
-    console.log(borrower)
-    console.log(paidInstallments)
+    console.log(borrower);
+    console.log(paidInstallments);
     const installments = [];
     const startDate = new Date(borrower.loanStartDate);
     const endDate = new Date(borrower.loanEndDate);
@@ -60,7 +106,7 @@ const MonthlySchemeBorrower = () => {
         demandedAmount: borrower.interestAmount,
         receivedAmount: paidInstallment ? paidInstallment.amount : 0, // Set receivedAmount to the amount from the fetched installment if paid
         paid: !!paidInstallment, // Set paid status based on whether a matching installment was found
-        paidOn: paidInstallment ? paidInstallment.paidOn : null
+        paidOn: paidInstallment ? paidInstallment.paidOn : null,
       });
 
       currentDate.setMonth(currentDate.getMonth() + 1); // Move to the next month
@@ -102,7 +148,7 @@ const MonthlySchemeBorrower = () => {
   };
 
   const handleSubmitPayment = async (installment) => {
-    console.log(installment)
+    console.log(installment);
     const receivedAmount = parseFloat(
       receivedAmounts[installment.date.toISOString().split("T")[0]] || 0
     );
@@ -173,7 +219,8 @@ const MonthlySchemeBorrower = () => {
     }
   };
 
-  const handleDiscountSubmit = async () => { // New function to handle discount submission
+  const handleDiscountSubmit = async () => {
+    // New function to handle discount submission
     if (!discountAmount || isNaN(discountAmount)) {
       alert("Please enter a valid discount amount");
       return;
@@ -226,18 +273,32 @@ const MonthlySchemeBorrower = () => {
         </div>
 
         <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
-          <div className="p-4">
-            <h3 className="text-md font-semibold">
-              <span>Total Balance Amount: ₹{totalBalanceAmount}</span>
-            </h3>
-            <h4 className="text-md font-semibold flex items-center gap-2">
-              <span className="w-4 h-4 rounded-full bg-orange-500 inline-block"></span>
-              <span>Total Active Accounts: {totalActiveBorrowers}</span>
-            </h4>
-            <h4 className="text-md font-semibold flex items-center gap-2">
-              <span className="w-4 h-4 rounded-full bg-green-500 inline-block"></span>
-              <span>Total Closed Accounts: {totalClosedAccounts}</span>
-            </h4>
+          <div className="overflow-x-auto">
+            <div className="p-4 flex flex-wrap justify-between">
+              <div>
+                <h4 className="text-md font-semibold">
+                  <span> Today's Total Collection: ₹{todaysTotalCollection}</span>
+                </h4>
+                {/* <h4 className="text-md font-semibold">
+                  <span> Total Profit: ₹{totalProfit}</span>
+                </h4> */}
+              </div>
+              <div>
+                <h3 className="text-md font-semibold">
+                  <span> Total Balance Amount: ₹{totalBalanceAmount}</span>
+                </h3>
+                <div className="flex flex-col">
+                  <h4 className="text-md font-semibold flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-orange-500 inline-block"></span>
+                    <span> Total Active Accounts: {totalActiveBorrowers} </span>
+                  </h4>
+                  <h4 className="text-md font-semibold flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-green-500 inline-block"></span>
+                    <span> Total Closed Accounts: {totalClosedAccounts} </span>
+                  </h4>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -269,7 +330,9 @@ const MonthlySchemeBorrower = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {monthlyBorrowers
                   .filter((borrower) =>
-                    borrower.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    borrower.name
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase())
                   )
                   .map((borrower) => (
                     <tr
@@ -358,10 +421,21 @@ const MonthlySchemeBorrower = () => {
                 </button>
               </div>
               <h3 className="text-lg font-semibold mb-2 text-green-500">
-                {selectedBorrower.installments.length} {selectedBorrower.installments.length > 1 ? "Installments" : "Installment"} paid {/* Total Count of Installments */}
+                {selectedBorrower.installments.length}{" "}
+                {selectedBorrower.installments.length > 1
+                  ? "Installments"
+                  : "Installment"}{" "}
+                paid {/* Total Count of Installments */}
               </h3>
               <h3 className="text-lg font-semibold mb-2 text-green-500">
-                {selectedBorrower.balanceAmount === 0 ? <span>Principle Amount Paid Back</span> : <span className="text-red-500">Principle Amount Not-Paid Yet</span>}{/* Total Count of Installments */}
+                {selectedBorrower.balanceAmount === 0 ? (
+                  <span>Principle Amount Paid Back</span>
+                ) : (
+                  <span className="text-red-500">
+                    Principle Amount Not-Paid Yet
+                  </span>
+                )}
+                {/* Total Count of Installments */}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {installments.map((installment, index) => (
@@ -400,20 +474,24 @@ const MonthlySchemeBorrower = () => {
                         {/* New message for paid on date */}
                         {installment.paidOn && (
                           <div className="mt-1 text-center text-gray-500">
-                            Paid on: {new Date(installment.paidOn).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}
+                            Paid on:{" "}
+                            {new Date(installment.paidOn).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )}
                           </div>
                         )}
                         {/* New message for pending amount */}
-                        {selectedBorrower.interestAmount > installment.receivedAmount && (
+                        {selectedBorrower.interestAmount >
+                          installment.receivedAmount && (
                           <div className="mt-2 text-center text-red-500">
-                            {selectedBorrower.interestAmount - installment.receivedAmount} amount pending
+                            {selectedBorrower.interestAmount -
+                              installment.receivedAmount}{" "}
+                            amount pending
                           </div>
                         )}
                       </>
@@ -424,7 +502,11 @@ const MonthlySchemeBorrower = () => {
                           type="number"
                           className="mt-2 w-full p-2 border rounded"
                           placeholder="Received amount"
-                          value={receivedAmounts[installment.date.toISOString().split("T")[0]] || ""}
+                          value={
+                            receivedAmounts[
+                              installment.date.toISOString().split("T")[0]
+                            ] || ""
+                          }
                           onChange={(e) =>
                             handleReceivedAmountChange(
                               installment.date.toISOString().split("T")[0],
@@ -444,20 +526,22 @@ const MonthlySchemeBorrower = () => {
                 ))}
 
                 {/* New Card for Principal Repayment */}
-                {selectedBorrower.balanceAmount !== 0 && <div className="border p-4 rounded-lg shadow-md bg-gradient-to-br from-white to-gray-100 mt-4 col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
-                  <h3 className="text-lg font-semibold text-center">
-                    Principal Amount Repayment
-                  </h3>
-                  <p className="text-center mt-2">
-                    Have you paid the principal amount?
-                  </p>
-                  <button
-                    className="mt-4 bg-green-500 text-white p-2 rounded w-full hover:bg-green-600 transition-colors"
-                    onClick={handlePrincipalRepayment}
-                  >
-                    Submit Principal Repayment
-                  </button>
-                </div>}
+                {selectedBorrower.balanceAmount !== 0 && (
+                  <div className="border p-4 rounded-lg shadow-md bg-gradient-to-br from-white to-gray-100 mt-4 col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
+                    <h3 className="text-lg font-semibold text-center">
+                      Principal Amount Repayment
+                    </h3>
+                    <p className="text-center mt-2">
+                      Have you paid the principal amount?
+                    </p>
+                    <button
+                      className="mt-4 bg-green-500 text-white p-2 rounded w-full hover:bg-green-600 transition-colors"
+                      onClick={handlePrincipalRepayment}
+                    >
+                      Submit Principal Repayment
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
