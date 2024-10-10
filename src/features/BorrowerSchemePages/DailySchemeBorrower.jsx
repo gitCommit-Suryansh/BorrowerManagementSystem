@@ -480,6 +480,15 @@ const DailySchemeBorrower = () => {
                             )}
                           </div>
                         )}
+                        {installment.demandedAmount >
+                          installment.receivedAmount && (
+                          <div className="mt-2 text-center text-red-500">
+                            ₹
+                            {installment.demandedAmount-
+                              installment.receivedAmount}{" "}
+                            amount pending
+                          </div>
+                        )}
                       </>
                     )}
                     {!installment.paid && (

@@ -489,6 +489,7 @@ const MonthlySchemeBorrower = () => {
                         {selectedBorrower.interestAmount >
                           installment.receivedAmount && (
                           <div className="mt-2 text-center text-red-500">
+                            ₹
                             {selectedBorrower.interestAmount -
                               installment.receivedAmount}{" "}
                             amount pending
