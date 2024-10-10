@@ -11,7 +11,6 @@ const MonthlySchemeBorrower = () => {
   const [receivedAmounts, setReceivedAmounts] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(""); // New state for discount amount
-  const [address, setAddress] = useState(""); // New state for address
 
   // New state variable for search query
   const [searchQuery, setSearchQuery] = useState("");
@@ -341,22 +340,6 @@ const MonthlySchemeBorrower = () => {
                 >
                   <FaTimes size={24} />
                 </button>
-              </div>
-              {/* New address input section */}
-              <div className="mb-4">
-                <label
-                  htmlFor="address"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Address
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
               </div>
               {/* New discount input section */}
               <div className="mb-4 flex items-center">
