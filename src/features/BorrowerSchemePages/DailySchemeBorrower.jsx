@@ -101,6 +101,7 @@ const DailySchemeBorrower = () => {
         demandedAmount: borrower.emiAmount,
         receivedAmount: paidInstallment ? paidInstallment.receivedAmount : 0,
         paid: paidInstallment ? paidInstallment.paid : false,
+        paidOn: paidInstallment ? paidInstallment.paidOn : null, // Include paidOn date
       });
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -151,6 +152,7 @@ const DailySchemeBorrower = () => {
       demandedAmount: installment.demandedAmount,
       receivedAmount: receivedAmount,
       paid: true, // Set paid to true by default
+      paidOn: receivedAmount>0 ? new Date().toISOString():null // Set paidOn to today's date
     };
 
     // Update the installments state immediately
@@ -161,6 +163,7 @@ const DailySchemeBorrower = () => {
               ...inst,
               receivedAmount,
               paid: updatedInstallment.paid,
+              paidOn: updatedInstallment.paidOn, // Update the paidOn date
             }
           : inst
       )
@@ -401,15 +404,11 @@ const DailySchemeBorrower = () => {
                     <div className="flex items-center justify-center mb-2">
                       <FaCalendarAlt className="text-blue-500 mr-2" />
                       <div className="text-lg font-semibold">
-                        {new Date(installment.date).toLocaleDateString(
-                          "en-US",
-                          {
-                            weekday: "short",
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          }
-                        )}
+                        {new Date(installment.date).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
                       </div>
                     </div>
                     <div className="text-center text-gray-600">
@@ -427,10 +426,13 @@ const DailySchemeBorrower = () => {
                         <div className="mt-2 text-center text-green-600">
                           Paid: ₹{installment.receivedAmount}
                         </div>
-                        {/* New message for pending amount */}
-                        {selectedBorrower.emiAmount > installment.receivedAmount && (
-                          <div className="mt-2 text-center text-red-500 font-bold">
-                            {selectedBorrower.emiAmount - installment.receivedAmount} amount pending
+                        {installment.paidOn && (
+                          <div className="mt-1 text-center text-gray-500">
+                            Paid on: {new Date(installment.paidOn).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
                           </div>
                         )}
                       </>
