@@ -39,6 +39,8 @@ const MonthlySchemeBorrower = () => {
   const totalClosedAccounts = monthlyBorrowers.filter((borrower) => borrower.loanStatus === "closed").length;
 
   const generateInstallments = (borrower, paidInstallments) => {
+    console.log(borrower)
+    console.log(paidInstallments)
     const installments = [];
     const startDate = new Date(borrower.loanStartDate);
     const endDate = new Date(borrower.loanEndDate);
@@ -51,9 +53,6 @@ const MonthlySchemeBorrower = () => {
       const formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
       const paidInstallment = paidInstallments.find((inst) => {
         const paidDate = inst.date.split("T")[0]; // Extract only the date part
-        console.log(
-          `Comparing generated date: ${formattedDate} with paid date: ${paidDate}`
-        );
         return formattedDate === paidDate;
       });
 
@@ -62,11 +61,11 @@ const MonthlySchemeBorrower = () => {
         demandedAmount: borrower.interestAmount,
         receivedAmount: paidInstallment ? paidInstallment.amount : 0, // Set receivedAmount to the amount from the fetched installment if paid
         paid: !!paidInstallment, // Set paid status based on whether a matching installment was found
+        paidOn: paidInstallment ? paidInstallment.paidOn : null
       });
 
       currentDate.setMonth(currentDate.getMonth() + 1); // Move to the next month
     }
-
     return installments;
   };
 
@@ -114,6 +113,7 @@ const MonthlySchemeBorrower = () => {
       date: installment.date.toISOString().split("T")[0], // Format as YYYY-MM-DD
       amount: receivedAmount, // Set amount to the received amount from the input
       paid: receivedAmount > 0, // Determine if paid based on received amount
+      paidOn: receivedAmount > 0 ? new Date().toISOString() : null, // Save the current date in the desired format
     };
 
     setInstallments((prev) =>
@@ -123,6 +123,7 @@ const MonthlySchemeBorrower = () => {
               ...inst,
               receivedAmount,
               paid: updatedInstallment.paid,
+              paidOn: updatedInstallment.paidOn, // Update the paidOn date
             }
           : inst
       )
@@ -413,6 +414,19 @@ const MonthlySchemeBorrower = () => {
                         <div className="mt-2 text-center text-green-600">
                           Paid: ₹{installment.receivedAmount}
                         </div>
+                        {/* New message for paid on date */}
+                        {installment.paidOn && (
+                          <div className="mt-1 text-center text-gray-500">
+                            Paid on: {new Date(installment.paidOn).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
+                          </div>
+                        )}
                         {/* New message for pending amount */}
                         {selectedBorrower.interestAmount > installment.receivedAmount && (
                           <div className="mt-2 text-center text-red-500">
