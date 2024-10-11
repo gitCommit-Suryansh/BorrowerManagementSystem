@@ -7,6 +7,7 @@ import RegisterDailyBorrower from './pages/RegisterDailyBorrower'
 import RegisterMonthlyBorrower from './pages/RegisterMonthlyBorrower'
 import DailySchemeBorrower from './features/BorrowerSchemePages/DailySchemeBorrower'
 import MonthlySchemeBorrower from './features/BorrowerSchemePages/MonthlySchemeBorrower'
+import ModifyBorrowers from './features/ModifyPage/ModifyBorrowers';
 function App() {
   return (
     <Router>
@@ -19,6 +20,7 @@ function App() {
           <Route path="/registermonthlyborrower" element={<RegisterMonthlyBorrower />} />
           <Route path="/dailyborrower" element={<DailySchemeBorrower />} />
           <Route path="/monthlyborrower" element={<MonthlySchemeBorrower />} />
+          <Route path="/modifyborrowers" element={<ModifyBorrowers/>} />
         </Routes>
       </div>
     </Router>
