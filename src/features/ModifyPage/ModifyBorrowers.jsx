@@ -11,7 +11,6 @@ const ModifyBorrowers = () => {
     const [editName, setEditName] = useState("");
     const [editContact, setEditContact] = useState("");
     const [editAddress, setEditAddress] = useState("");
-    const [searchDate, setSearchDate] = useState(""); // New state for date search
 
     useEffect(() => {
         const fetchBorrowers = async () => {
@@ -86,15 +85,6 @@ const ModifyBorrowers = () => {
                     />
                 </div>
 
-                <div className="mb-4">
-                    <input
-                        type="date" // Change input type to date
-                        className="p-2 border rounded w-full"
-                        value={searchDate}
-                        onChange={(e) => setSearchDate(e.target.value)}
-                    />
-                </div>
-
                 <div className="flex mb-4">
                     <button 
                         onClick={() => setIsDaily(true)} 
@@ -119,7 +109,6 @@ const ModifyBorrowers = () => {
                                         <>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loan Start Date</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aadhar Number</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cheque Number</th>
@@ -147,8 +136,7 @@ const ModifyBorrowers = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {Array.isArray(borrowers) && borrowers
                                     .filter(borrower => 
-                                        borrower.name.toLowerCase().includes(searchQuery.toLowerCase()) || // Search by name
-                                        new Date(borrower.loanStartDate).toLocaleDateString() === new Date(searchDate).toLocaleDateString() // Search by date
+                                        borrower.name.toLowerCase().includes(searchQuery.toLowerCase()) // Search by name only
                                     )
                                     .map(borrower => (
                                         <tr key={borrower._id} className="cursor-pointer hover:bg-gray-100" onClick={() => handleEditClick(borrower)}>
