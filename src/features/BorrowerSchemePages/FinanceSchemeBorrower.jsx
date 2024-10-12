@@ -213,6 +213,7 @@ const FinanceSchemeBorrower = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Principle Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Refund Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Refunded Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
@@ -236,6 +237,7 @@ const FinanceSchemeBorrower = () => {
                       <td className="px-6 py-4 whitespace-nowrap">{borrower.name}</td>
                       <td className="px-6 py-4 whitespace-nowrap">₹{borrower.principleAmount}</td>
                       <td className="px-6 py-4 whitespace-nowrap">₹{borrower.refundAmount}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">₹{borrower.refundedAmount}</td>
                       <td className="px-6 py-4 whitespace-nowrap">₹{borrower.balanceAmount}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{new Date(borrower.loanStartDate).toLocaleDateString()}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{new Date(borrower.loanEndDate).toLocaleDateString()}</td>
