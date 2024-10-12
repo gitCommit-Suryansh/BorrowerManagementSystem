@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 import Header from './features/navigation/Header'
 import Login from './features/auth/Login'
@@ -12,25 +12,32 @@ import FinanceSchemeBorrower from './features/BorrowerSchemePages/FinanceSchemeB
 import ModifyBorrowers from './features/ModifyPage/ModifyBorrowers';
 
 function App() {
+  const location = useLocation(); // Get the current location
+
   return (
-    <Router>
-      <div className="App">
-        {/* Conditionally render Header based on the current route */}
-        {window.location.pathname !== '/' && <Header />}
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/registerdailyborrower" element={<RegisterDailyBorrower />} />
-          <Route path="/registermonthlyborrower" element={<RegisterMonthlyBorrower />} />
-          <Route path="/registerfinanceborrower" element={<RegisterFinanceBorrower/>} />
-          <Route path="/dailyborrower" element={<DailySchemeBorrower />} />
-          <Route path="/monthlyborrower" element={<MonthlySchemeBorrower />} />
-          <Route path="/financeborrower" element={<FinanceSchemeBorrower />} />
-          <Route path="/modifyborrowers" element={<ModifyBorrowers/>} />
-        </Routes>
-      </div>
-    </Router>
+    <div className="App">
+      {/* Conditionally render Header based on the current route */}
+      {location.pathname !== '/' && <Header />}
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/registerdailyborrower" element={<RegisterDailyBorrower />} />
+        <Route path="/registermonthlyborrower" element={<RegisterMonthlyBorrower />} />
+        <Route path="/registerfinanceborrower" element={<RegisterFinanceBorrower />} />
+        <Route path="/dailyborrower" element={<DailySchemeBorrower />} />
+        <Route path="/monthlyborrower" element={<MonthlySchemeBorrower />} />
+        <Route path="/financeborrower" element={<FinanceSchemeBorrower />} />
+        <Route path="/modifyborrowers" element={<ModifyBorrowers />} />
+      </Routes>
+    </div>
   );
 }
 
-export default App;
+// Wrap App with Router
+export default function AppWrapper() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}
