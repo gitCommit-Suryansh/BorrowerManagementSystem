@@ -9,6 +9,7 @@ import {
   FaCalendarAlt,
 } from "react-icons/fa";
 import axios from "axios";
+import Header from "../features/navigation/Header";
 
 const RegisterMonthlyBorrower = () => {
   const navigate = useNavigate();
@@ -90,7 +91,9 @@ const RegisterMonthlyBorrower = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
+   <>
+   {/* <Header/> */}
+   <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
       {message && (
         <div className="fixed top-[10%] left-0 right-0 flex justify-center mb-4">
           <p className="bg-green-300 border-l-4 border-green-500 text-red-500 p-4 font-bold rounded-lg">
@@ -312,6 +315,7 @@ const RegisterMonthlyBorrower = () => {
         </form>
       </div>
     </div>
+   </>
   );
 };
 

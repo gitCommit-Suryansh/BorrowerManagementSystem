@@ -9,6 +9,7 @@ import {
   FaTimes,
   FaPercent,
 } from "react-icons/fa";
+import Header from "../navigation/Header";
 
 const DailySchemeBorrower = () => {
   const [dailyBorrowers, setDailyBorrowers] = useState([]);
@@ -258,7 +259,9 @@ const DailySchemeBorrower = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
+   <>
+   {/* <Header/> */}
+   <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">
           DAILY SCHEME LOANS
@@ -523,6 +526,7 @@ const DailySchemeBorrower = () => {
         )}
       </div>
     </div>
+   </>
   );
 };
 

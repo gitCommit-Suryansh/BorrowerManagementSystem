@@ -10,11 +10,13 @@ import DailySchemeBorrower from './features/BorrowerSchemePages/DailySchemeBorro
 import MonthlySchemeBorrower from './features/BorrowerSchemePages/MonthlySchemeBorrower'
 import FinanceSchemeBorrower from './features/BorrowerSchemePages/FinanceSchemeBorrower'
 import ModifyBorrowers from './features/ModifyPage/ModifyBorrowers';
+
 function App() {
   return (
     <Router>
       <div className="App">
-        <Header />
+        {/* Conditionally render Header based on the current route */}
+        {window.location.pathname !== '/' && <Header />}
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Home />} />
@@ -25,7 +27,6 @@ function App() {
           <Route path="/monthlyborrower" element={<MonthlySchemeBorrower />} />
           <Route path="/financeborrower" element={<FinanceSchemeBorrower />} />
           <Route path="/modifyborrowers" element={<ModifyBorrowers/>} />
-
         </Routes>
       </div>
     </Router>
