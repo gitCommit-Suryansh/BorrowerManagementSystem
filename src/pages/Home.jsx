@@ -24,6 +24,7 @@ const Home = () => {
             description="Add a new borrower to the system"
             link="/registerdailyborrower"
             link2="/registermonthlyborrower"
+            link3="/registerfinanceborrower"
             icon="👤"
           />
         </div>
@@ -32,7 +33,7 @@ const Home = () => {
   );
 };
 
-const Card = ({ title, description, link, link2, icon }) => (
+const Card = ({ title, description, link, link2,link3, icon }) => (
   <div className="bg-white rounded-lg shadow-xl overflow-hidden transform transition duration-500 hover:scale-105">
     <div className="p-6">
       <div className="text-4xl mb-4">{icon}</div>
@@ -40,16 +41,24 @@ const Card = ({ title, description, link, link2, icon }) => (
       <p className="text-gray-600 mb-4">{description}</p>
       <Link
         to={link}
-        className="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 mr-2 mb-2"
+        className="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 ml-2 mb-2"
       >
         {title === "Borrower" ? "Register Daily Borrower" : `Go to ${title}`}
       </Link>
       {link2 && (
         <Link
           to={link2}
-          className="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300"
+          className="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 ml-2 mb-2"
         >
           Register Monthly Borrower
+        </Link>
+      )}
+      {link3 && (
+        <Link
+          to={link3}
+          className="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 ml-2 mb-2"
+        >
+          Register Finance Borrower
         </Link>
       )}
     </div>

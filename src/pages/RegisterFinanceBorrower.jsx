@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 
-const RegisterMonthlyBorrower = () => {
+const RegisterFinanceBorrower = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
@@ -20,8 +20,9 @@ const RegisterMonthlyBorrower = () => {
     chequeNumber: "",
     principleAmount: "",
     interestPercentage: "",
-    interestAmount: "",
-    loanScheme: "monthly",
+    refundAmount: "",
+    emiAmount: "", // Added emiAmount field
+    loanScheme: "finance",
     tenure: "",
     loanStartDate: new Date().toISOString().split("T")[0], // Set default to today's date
     loanEndDate: "",
@@ -43,14 +44,16 @@ const RegisterMonthlyBorrower = () => {
       const interestRate = parseFloat(formData.interestPercentage);
       if (!isNaN(principle) && !isNaN(interestRate)) {
         const interestAmount = (principle * interestRate) / 100;
+        const totalRefundAmount = Math.round(interestAmount + principle);
         setFormData((prevState) => ({
           ...prevState,
-          interestAmount: Math.round(interestAmount),
-          balanceAmount: Math.round(principle),
+          refundAmount: totalRefundAmount,
+          balanceAmount: totalRefundAmount,
+          emiAmount: Math.ceil(totalRefundAmount / formData.tenure), // Calculate EMI based on tenure
         }));
       }
     }
-  }, [formData.principleAmount, formData.interestPercentage]);
+  }, [formData.principleAmount, formData.interestPercentage, formData.tenure]);
 
   useEffect(() => {
     if (formData.loanStartDate && formData.tenure) {
@@ -73,19 +76,19 @@ const RegisterMonthlyBorrower = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/auth/registermonthlyborrower`,
+        `${process.env.REACT_APP_BACKEND_URL}/auth/registerfinanceborrower`,
         formData
       );
       if (response.status === 200) {
-        alert("Monthly Borrower registered successfully");
-        setMessage("Monthly Borrower registered successfully");
+        alert("Finance Borrower registered successfully");
+        setMessage("Finance Borrower registered successfully");
       } else {
-        alert("Failed to register monthly borrower");
-        setMessage("Failed to register monthly borrower");
+        alert("Failed to register finance borrower");
+        setMessage("Failed to register finance borrower");
       }
     } catch (error) {
-      alert("Error registering monthly borrower:", error);
-      setMessage("Error registering monthly borrower:", error);
+      alert("Error registering finance borrower:", error);
+      setMessage("Error registering finance borrower:", error);
     }
   };
 
@@ -100,7 +103,7 @@ const RegisterMonthlyBorrower = () => {
       )}
       <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-xl">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">
-          Register Monthly Borrower
+          Register Finance Borrower
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,22 +208,6 @@ const RegisterMonthlyBorrower = () => {
             </div>
             <div>
               <label
-                htmlFor="interestAmount"
-                className="block text-sm font-medium text-gray-700 mb-1 flex items-center"
-              >
-                <FaCoins className="mr-2" /> Interest Amount
-              </label>
-              <input
-                type="number"
-                id="interestAmount"
-                name="interestAmount"
-                value={formData.interestAmount}
-                readOnly
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
-              />
-            </div>
-            <div>
-              <label
                 htmlFor="tenure"
                 className="block text-sm font-medium text-gray-700 mb-1 flex items-center"
               >
@@ -235,6 +222,39 @@ const RegisterMonthlyBorrower = () => {
                 onChange={handleChange}
               />
             </div>
+            <div>
+              <label
+                htmlFor="emiAmount"
+                className="block text-sm font-medium text-gray-700 mb-1 flex items-center"
+              >
+                <FaCoins className="mr-2" /> EMI Amount
+              </label>
+              <input
+                type="number"
+                id="emiAmount"
+                name="emiAmount"
+                value={formData.emiAmount}
+                readOnly
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="refundAmount"
+                className="block text-sm font-medium text-gray-700 mb-1 flex items-center"
+              >
+                <FaCoins className="mr-2" /> Refund Amount
+              </label>
+              <input
+                type="number"
+                id="refundAmount"
+                name="refundAmount"
+                value={formData.refundAmount}
+                readOnly
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
+              />
+            </div>
+           
             <div>
               <label
                 htmlFor="loanStartDate"
@@ -306,7 +326,7 @@ const RegisterMonthlyBorrower = () => {
               type="submit"
               className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300"
             >
-              Register Monthly Borrower
+              Register Finance Borrower
             </button>
           </div>
         </form>
@@ -315,4 +335,4 @@ const RegisterMonthlyBorrower = () => {
   );
 };
 
-export default RegisterMonthlyBorrower;
+export default RegisterFinanceBorrower;

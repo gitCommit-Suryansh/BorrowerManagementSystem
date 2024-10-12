@@ -14,6 +14,7 @@ const Header = () => {
             <li><Link to="/home" className="block hover:text-gray-200 transition duration-300">Home</Link></li>
             <li><Link to="/dailyborrower" className="block hover:text-gray-200 transition duration-300">Daily Borrower</Link></li>
             <li><Link to="/monthlyborrower" className="block hover:text-gray-200 transition duration-300">Monthly Borrower</Link></li>
+            <li><Link to="/financeborrower" className="block hover:text-gray-200 transition duration-300">Finance Borrower</Link></li>
             <li><Link to="/modifyborrowers" className="block hover:text-gray-200 transition duration-300">Modify Borrowers</Link></li>
             <li><Link to="/" className="block text-white hover:text-gray-200 transition duration-300 font-bold">Logout</Link></li>
           </ul>
@@ -36,6 +37,7 @@ const Header = () => {
               <li><Link to="/home" className="block text-white hover:text-gray-200 transition duration-300">Home</Link></li>
               <li><Link to="/dailyborrower" className="block text-white hover:text-gray-200 transition duration-300">Daily Borrower</Link></li>
               <li><Link to="/monthlyborrower" className="block text-white hover:text-gray-200 transition duration-300">Monthly Borrower</Link></li>
+              <li><Link to="/financeborrower" className="block text-white hover:text-gray-200 transition duration-300">Finance Borrower</Link></li>
               <li><Link to="/modifyborrowers" className="block text-white hover:text-gray-200 transition duration-300">Modify Borrowers</Link></li>
               <li><Link to="/" className="block text-white hover:text-gray-200 transition duration-300 font-bold">Logout</Link></li>
             </ul>
