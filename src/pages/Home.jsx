@@ -20,6 +20,12 @@ const Home = () => {
             icon="📆"
           />
           <Card
+            title="Finance Scheme"
+            description="Manage financed installments for borrowers"
+            link="/financeborrower"
+            icon="📆"
+          />
+          <Card
             title="Borrower"
             description="Add a new borrower to the system"
             link="/registerdailyborrower"
