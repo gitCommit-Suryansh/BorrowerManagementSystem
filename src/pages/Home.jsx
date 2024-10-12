@@ -6,7 +6,7 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-extrabold text-white mb-10 text-center">Borrower Management System</h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           <Card
             title="Daily Scheme"
             description="Manage daily installments for borrowers"
@@ -39,7 +39,7 @@ const Home = () => {
   );
 };
 
-const Card = ({ title, description, link, link2,link3, icon }) => (
+const Card = ({ title, description, link, link2, link3, icon }) => (
   <div className="bg-white rounded-lg shadow-xl overflow-hidden transform transition duration-500 hover:scale-105">
     <div className="p-6">
       <div className="text-4xl mb-4">{icon}</div>
