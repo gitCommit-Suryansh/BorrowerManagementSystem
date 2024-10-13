@@ -154,6 +154,9 @@ const ModifyBorrowers = () => {
                 <tr>
                   {isDaily ? (
                     <>
+                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Loan Status
+                      </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Loan Start Date
                       </th>
@@ -181,9 +184,7 @@ const ModifyBorrowers = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Tenure
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Loan Status
-                      </th>
+                     
                     </>
                   ) : (
                     <>
