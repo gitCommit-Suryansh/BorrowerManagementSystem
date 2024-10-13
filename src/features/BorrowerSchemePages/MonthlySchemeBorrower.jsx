@@ -29,6 +29,9 @@ const MonthlySchemeBorrower = () => {
   // New state variable for search query
   const [searchQuery, setSearchQuery] = useState("");
 
+  // New state variable for total pending amount
+  const [totalPendingAmount, setTotalPendingAmount] = useState(0);
+
   axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
   useEffect(() => {
     const fetchMonthlyBorrowers = async () => {
@@ -139,6 +142,12 @@ const MonthlySchemeBorrower = () => {
     );
     setInstallments(generatedInstallments);
     setIsModalOpen(true);
+
+    // New calculation for total pending amount
+    const totalPaidAmount = paidInstallments.reduce((sum, inst) => sum + inst.amount, 0);
+    const totalDueAmount = paidInstallments.length * borrower.interestAmount; // Total due based on installments
+    const totalPendingAmount = totalDueAmount - totalPaidAmount; // Calculate pending amount
+    setTotalPendingAmount(totalPendingAmount); // Set the total pending amount in state
   };
 
   const handleReceivedAmountChange = (date, amount) => {
@@ -246,6 +255,17 @@ const MonthlySchemeBorrower = () => {
       alert("Error applying discount");
     }
   };
+
+  // New useEffect to recalculate totalPendingAmount whenever installments or selectedBorrower changes
+  useEffect(() => {
+    if (selectedBorrower) {
+      const paidInstallments = installments.filter(inst => inst.paid);
+      const totalPaidAmount = paidInstallments.reduce((sum, inst) => sum + inst.receivedAmount, 0);
+      const totalDueAmount = paidInstallments.length * selectedBorrower.interestAmount; // Total due based on installments
+      const totalPendingAmount = totalDueAmount - totalPaidAmount; // Calculate pending amount
+      setTotalPendingAmount(totalPendingAmount); // Set the total pending amount in state
+    }
+  }, [installments, selectedBorrower]);
 
   if (loading) {
     return <div className="text-center mt-20">Loading...</div>;
@@ -407,6 +427,10 @@ const MonthlySchemeBorrower = () => {
                   <FaTimes size={24} />
                 </button>
               </div>
+              {/* New total pending amount display */}
+              <h4 className="text-md font-semibold">
+                Total Amount Pending: ₹{totalPendingAmount}
+              </h4>
               {/* New discount input section */}
               <div className="mb-4 flex items-center">
                 <input
