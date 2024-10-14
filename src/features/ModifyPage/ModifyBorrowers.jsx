@@ -164,6 +164,9 @@ const ModifyBorrowers = () => {
                         Name
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Reference
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Contact
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -196,6 +199,9 @@ const ModifyBorrowers = () => {
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Reference
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Contact
@@ -252,6 +258,9 @@ const ModifyBorrowers = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {borrower.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {borrower.reference}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {borrower.contact}
