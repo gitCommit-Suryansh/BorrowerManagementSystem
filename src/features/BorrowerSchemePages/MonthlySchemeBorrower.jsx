@@ -32,6 +32,9 @@ const MonthlySchemeBorrower = () => {
   // New state variable for total pending amount
   const [totalPendingAmount, setTotalPendingAmount] = useState(0);
 
+  // New state for total paid amount
+  const [totalPaidAmount, setTotalPaidAmount] = useState(0);
+
   axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
   useEffect(() => {
     const fetchMonthlyBorrowers = async () => {
@@ -146,8 +149,9 @@ const MonthlySchemeBorrower = () => {
     // New calculation for total pending amount
     const totalPaidAmount = paidInstallments.reduce((sum, inst) => sum + inst.amount, 0);
     const totalDueAmount = paidInstallments.length * borrower.interestAmount; // Total due based on installments
-    const totalPendingAmount = totalDueAmount - totalPaidAmount; // Calculate pending amount
+    const totalPendingAmount = Math.max(0, totalDueAmount - totalPaidAmount); // Ensure totalPendingAmount is at least 0
     setTotalPendingAmount(totalPendingAmount); // Set the total pending amount in state
+    setTotalPaidAmount(totalPaidAmount); // Set the total paid amount in state
   };
 
   const handleReceivedAmountChange = (date, amount) => {
@@ -262,8 +266,9 @@ const MonthlySchemeBorrower = () => {
       const paidInstallments = installments.filter(inst => inst.paid);
       const totalPaidAmount = paidInstallments.reduce((sum, inst) => sum + inst.receivedAmount, 0);
       const totalDueAmount = paidInstallments.length * selectedBorrower.interestAmount; // Total due based on installments
-      const totalPendingAmount = totalDueAmount - totalPaidAmount; // Calculate pending amount
+      const totalPendingAmount = Math.max(0, totalDueAmount - totalPaidAmount); // Ensure totalPendingAmount is at least 0
       setTotalPendingAmount(totalPendingAmount); // Set the total pending amount in state
+      setTotalPaidAmount(totalPaidAmount); // Update total paid amount
     }
   }, [installments, selectedBorrower]);
 
@@ -430,6 +435,10 @@ const MonthlySchemeBorrower = () => {
               {/* New total pending amount display */}
               <h4 className="text-md font-semibold">
                 Total Amount Pending: ₹{totalPendingAmount}
+              </h4>
+              {/* New total paid amount display */}
+              <h4 className="text-md font-semibold">
+                Total Amount Paid: ₹{totalPaidAmount} {/* Display total paid amount */}
               </h4>
               {/* New discount input section */}
               <div className="mb-4 flex items-center">

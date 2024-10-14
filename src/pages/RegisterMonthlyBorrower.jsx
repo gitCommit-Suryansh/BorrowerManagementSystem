@@ -28,6 +28,7 @@ const RegisterMonthlyBorrower = () => {
     loanEndDate: "",
     balanceAmount: "",
     address: "", // Added address field
+    reference: "", // Added reference field
   });
 
   const handleChange = (e) => {
@@ -298,6 +299,22 @@ const RegisterMonthlyBorrower = () => {
                 type="text"
                 id="address"
                 name="address"
+                required
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="reference"
+                className="block text-sm font-medium text-gray-700 mb-1 flex items-center"
+              >
+                <FaIdCard className="mr-2" /> Reference
+              </label>
+              <input
+                type="text"
+                id="reference"
+                name="reference"
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
