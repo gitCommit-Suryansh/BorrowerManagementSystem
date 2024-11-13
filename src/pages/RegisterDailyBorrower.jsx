@@ -23,6 +23,22 @@ const RegisterDailyBorrower = () => {
     reference: "", // Added reference field
   });
   const [message, setMessage] = useState("");
+  const [registeredBorrowers, setRegisteredBorrowers] = useState([]);
+  const [filteredNames, setFilteredNames] = useState([]);
+
+  useEffect(() => {
+    const fetchRegisteredBorrowers = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/fetch/fetchdailyborrower`);
+        setRegisteredBorrowers(response.data.dailyBorrowers);
+      } catch (error) {
+        console.error("Error fetching registered borrowers:", error);
+      }
+    };
+
+    fetchRegisteredBorrowers();
+  }, []);
+  console.log(registeredBorrowers)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,6 +47,28 @@ const RegisterDailyBorrower = () => {
       [name]: value,
       ...(name === 'refundAmount' ? { balanceAmount: value } : {}),
     }));
+
+    if (name === 'name' && value) {
+      const filtered = registeredBorrowers.filter(borrower =>
+        borrower.name.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setFilteredNames(filtered);
+    } else {
+      setFilteredNames([]);
+    }
+  };
+
+  const handleNameSelect = (selectedName) => {
+    setFormData({
+      ...formData,
+      name: selectedName.name,
+      contact: selectedName.contact,
+      aadharNumber: selectedName.aadharNumber,
+      chequeNumber: selectedName.chequeNumber,
+      address: selectedName.address,
+      reference: selectedName.reference,
+    });
+    setFilteredNames([]);
   };
 
   useEffect(() => {
@@ -114,7 +152,21 @@ const RegisterDailyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.name}
               />
+              {filteredNames.length > 0 && (
+                <ul className="absolute bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-y-auto">
+                  {filteredNames.map((borrower) => (
+                    <li
+                      key={borrower.aadharNumber}
+                      className="py-2 px-4 hover:bg-gray-200 cursor-pointer"
+                      onClick={() => handleNameSelect(borrower)}
+                    >
+                      {borrower.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div>
               <label
@@ -130,6 +182,7 @@ const RegisterDailyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.contact}
               />
             </div>
             <div>
@@ -146,6 +199,7 @@ const RegisterDailyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.aadharNumber}
               />
             </div>
             <div>
@@ -162,6 +216,7 @@ const RegisterDailyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.chequeNumber}
               />
             </div>
             <div>
@@ -178,6 +233,7 @@ const RegisterDailyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.principleAmount}
               />
             </div>
             <div>
@@ -194,6 +250,7 @@ const RegisterDailyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.refundAmount}
               />
             </div>
             <div>
@@ -210,6 +267,7 @@ const RegisterDailyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.tenure}
               />
             </div>
             <div>
@@ -291,6 +349,7 @@ const RegisterDailyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.address}
               />
             </div>
             <div>
@@ -307,6 +366,7 @@ const RegisterDailyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.reference}
               />
             </div>
           </div>
