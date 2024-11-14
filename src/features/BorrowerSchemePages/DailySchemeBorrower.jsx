@@ -346,6 +346,7 @@ const DailySchemeBorrower = () => {
                       .toLowerCase()
                       .includes(searchQuery.toLowerCase())
                   )
+                  .sort((a, b) => new Date(a.loanStartDate) - new Date(b.loanStartDate))
                   .map((borrower) => (
                     <tr
                       key={borrower._id}
