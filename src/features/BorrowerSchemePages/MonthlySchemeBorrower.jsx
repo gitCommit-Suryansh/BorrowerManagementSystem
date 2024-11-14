@@ -362,6 +362,7 @@ const MonthlySchemeBorrower = () => {
                       .toLowerCase()
                       .includes(searchQuery.toLowerCase())
                   )
+                  .sort((a, b) => new Date(a.loanStartDate) - new Date(b.loanStartDate))
                   .map((borrower) => (
                     <tr
                       key={borrower._id}
@@ -406,10 +407,18 @@ const MonthlySchemeBorrower = () => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {new Date(borrower.loanStartDate).toLocaleDateString()}
+                        {new Date(borrower.loanStartDate).toLocaleDateString("en-GB", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {new Date(borrower.loanEndDate).toLocaleDateString()}
+                        {new Date(borrower.loanEndDate).toLocaleDateString("en-GB", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
                       </td>
                     </tr>
                   ))}
@@ -482,14 +491,11 @@ const MonthlySchemeBorrower = () => {
                     <div className="flex items-center justify-center mb-2">
                       <FaCalendarAlt className="text-blue-500 mr-2" />
                       <div className="text-lg font-semibold">
-                        {new Date(installment.date).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}
+                        {new Date(installment.date).toLocaleDateString("en-GB", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
                       </div>
                     </div>
                     <div className="text-center text-gray-600">
@@ -511,14 +517,11 @@ const MonthlySchemeBorrower = () => {
                         {installment.paidOn && (
                           <div className="mt-1 text-center text-gray-500">
                             Paid on:{" "}
-                            {new Date(installment.paidOn).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              }
-                            )}
+                            {new Date(installment.paidOn).toLocaleDateString("en-GB", {
+                              year: "numeric",
+                              month: "numeric",
+                              day: "numeric",
+                            })}
                           </div>
                         )}
                         {/* New message for pending amount */}
