@@ -301,6 +301,12 @@ const MonthlySchemeBorrower = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        <button
+          onClick={() => setShowClosedAccounts(true)}
+          className="mb-4 bg-yellow-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"
+        >
+          Show Closed Accounts
+        </button>
 
         <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
           <div className="overflow-x-auto">
@@ -590,12 +596,7 @@ const MonthlySchemeBorrower = () => {
         )}
 
         {/* Toggle Button for Closed Accounts */}
-        <button
-          onClick={() => setShowClosedAccounts(true)}
-          className="mb-4 bg-yellow-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"
-        >
-          Show Closed Accounts
-        </button>
+       
 
         {/* Modal for Closed Accounts */}
         {showClosedAccounts && (
