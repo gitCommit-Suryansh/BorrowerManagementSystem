@@ -21,6 +21,11 @@ const DailySchemeBorrower = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState("");
 
+  // New state variables for total demanded and paid amounts
+  const [totalDemandedAmount, setTotalDemandedAmount] = useState(0);
+  const [totalPaidAmount, setTotalPaidAmount] = useState(0);
+  const [totalPendingAmount, setTotalPendingAmount] = useState(0);
+
   // New state variable for today's total collection
   const [todaysTotalCollection, setTodaysTotalCollection] = useState(0);
 
@@ -56,6 +61,18 @@ const DailySchemeBorrower = () => {
 
     fetchDailyBorrowers();
   }, [dailyBorrowers]);
+
+  // New function to calculate total demanded and paid amounts
+  const calculateTotalAmounts = (installments, borrower) => {
+    const paidInstallments = installments.filter(inst => inst.paid);
+    const totalDemanded = paidInstallments.length * borrower.emiAmount;
+    const totalPaid = paidInstallments.reduce((sum, inst) => sum + inst.receivedAmount, 0);
+    const totalPending = totalDemanded - totalPaid;
+
+    setTotalDemandedAmount(totalDemanded);
+    setTotalPaidAmount(totalPaid);
+    setTotalPendingAmount(totalPending);
+  };
 
   // New function to calculate today's total collection
   const calculateTodaysTotalCollection = (borrowers) => {
@@ -166,6 +183,7 @@ const DailySchemeBorrower = () => {
       paidInstallments
     );
     setInstallments(generatedInstallments);
+    calculateTotalAmounts(generatedInstallments, borrower); // Calculate totals when selecting borrower
     setIsModalOpen(true);
   };
 
@@ -191,19 +209,20 @@ const DailySchemeBorrower = () => {
     };
 
     // Update the installments state immediately
-    setInstallments((prev) =>
-      prev.map((inst) =>
-        inst.date.getTime() === installment.date.getTime()
-          ? {
-              ...inst,
-              receivedAmount,
-              paid: updatedInstallment.paid,
-              paidOn: updatedInstallment.paidOn, // Update the paidOn date
-              remark: updatedInstallment.remark, // Update the remark
-            }
-          : inst
-      )
+    const updatedInstallments = installments.map((inst) =>
+      inst.date.getTime() === installment.date.getTime()
+        ? {
+            ...inst,
+            receivedAmount,
+            paid: updatedInstallment.paid,
+            paidOn: updatedInstallment.paidOn, // Update the paidOn date
+            remark: updatedInstallment.remark, // Update the remark
+          }
+        : inst
     );
+    
+    setInstallments(updatedInstallments);
+    calculateTotalAmounts(updatedInstallments, selectedBorrower); // Recalculate totals after payment
 
     // Clear the received amount for that date
     setReceivedAmounts((prev) => {
@@ -508,13 +527,23 @@ const DailySchemeBorrower = () => {
                   <FaTimes size={24} />
                 </button>
               </div>
-              <div className="mb-4 text-lg font-semibold text-green-600">
-                {installments.filter((inst) => inst.paid).length}{" "}
-                {installments.filter((inst) => inst.paid).length === 1
-                  ? "Installment"
-                  : "Installments"}{" "}
-                paid
+              
+              {/* New section for total amounts */}
+              <div className="mb-4 p-4 bg-gray-100 rounded-lg flex justify-between">
+                <div className="text-lg font-semibold">
+                  <div>Total Demanded Amount: ₹{totalDemandedAmount}</div>
+                  <div>Total Paid Amount: ₹{totalPaidAmount}</div>
+                  <div>Total Pending Amount: ₹{totalPendingAmount}</div>
+                </div>
+                <div className="text-lg font-semibold text-green-600">
+                  {installments.filter((inst) => inst.paid).length}{" "}
+                  {installments.filter((inst) => inst.paid).length === 1
+                    ? "Installment"
+                    : "Installments"}{" "}
+                  paid
+                </div>
               </div>
+
               <div className="mb-4 flex items-center">
                 <input
                   type="number"
