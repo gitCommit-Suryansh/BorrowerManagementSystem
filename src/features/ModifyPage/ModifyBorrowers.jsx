@@ -13,6 +13,7 @@ const ModifyBorrowers = () => {
   const [editName, setEditName] = useState("");
   const [editContact, setEditContact] = useState("");
   const [editAddress, setEditAddress] = useState("");
+  const [editPrincipleAmount, setEditPrincipleAmount] = useState(""); // New state for principle amount
 
   useEffect(() => {
     const fetchBorrowers = async () => {
@@ -47,6 +48,7 @@ const ModifyBorrowers = () => {
     setEditName(borrower.name);
     setEditContact(borrower.contact);
     setEditAddress(borrower.address || ""); // Handle potential undefined address
+    setEditPrincipleAmount(borrower.principleAmount); // Set initial value for principle amount
   };
 
   const handleUpdateBorrower = async () => {
@@ -56,6 +58,7 @@ const ModifyBorrowers = () => {
         name: editName,
         contact: editContact,
         address: editAddress,
+        principleAmount: editPrincipleAmount, // Include principle amount in the update
       };
 
       // Send the updated borrower details to the backend
@@ -331,6 +334,19 @@ const ModifyBorrowers = () => {
                   className="mt-1 p-2 border rounded w-full"
                 />
               </div>
+              {isDaily && ( // New input field for principle amount only for daily borrowers
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Principal Amount
+                  </label>
+                  <input
+                    type="number"
+                    value={editPrincipleAmount}
+                    onChange={(e) => setEditPrincipleAmount(e.target.value)}
+                    className="mt-1 p-2 border rounded w-full"
+                  />
+                </div>
+              )}
               <div className="flex justify-end">
                 <button
                   onClick={handleUpdateBorrower}
