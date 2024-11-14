@@ -88,12 +88,18 @@ const ManageBorrowers = () => {
   };
 
   const handleDeleteBorrower = async (borrowerId) => {
-    try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/deleteBorrower/${borrowerId}`);
-      setBorrowers(borrowers.filter(borrower => borrower._id !== borrowerId));
-    } catch (error) {
-      console.error("Error deleting borrower:", error);
-      setError("Error deleting borrower");
+    const confirmDelete = window.confirm("Are you sure you want to delete this borrower?");
+    if (confirmDelete) {
+      const confirmFinal = window.confirm("This action cannot be undone. Do you really want to proceed?");
+      if (confirmFinal) {
+        try {
+          await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/deleteBorrower/${borrowerId}`);
+          setBorrowers(borrowers.filter(borrower => borrower._id !== borrowerId));
+        } catch (error) {
+          console.error("Error deleting borrower:", error);
+          setError("Error deleting borrower");
+        }
+      }
     }
   };
 
