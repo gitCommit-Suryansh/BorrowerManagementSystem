@@ -20,6 +20,7 @@ const MonthlySchemeBorrower = () => {
   const [selectedBorrower, setSelectedBorrower] = useState(null);
   const [installments, setInstallments] = useState([]);
   const [receivedAmounts, setReceivedAmounts] = useState({});
+  const [remarks, setRemarks] = useState({}); // New state for remarks
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(""); // New state for discount amount
 
@@ -116,6 +117,7 @@ const MonthlySchemeBorrower = () => {
         receivedAmount: paidInstallment ? paidInstallment.amount : 0, // Set receivedAmount to the amount from the fetched installment if paid
         paid: !!paidInstallment, // Set paid status based on whether a matching installment was found
         paidOn: paidInstallment ? paidInstallment.paidOn : null,
+        remark: paidInstallment ? paidInstallment.remark : "", // Set remark if available
       });
 
       currentDate.setMonth(currentDate.getMonth() + 1); // Move to the next month
@@ -163,11 +165,19 @@ const MonthlySchemeBorrower = () => {
     }));
   };
 
+  const handleRemarkChange = (date, remark) => {
+    setRemarks((prev) => ({
+      ...prev,
+      [date]: remark,
+    }));
+  };
+
   const handleSubmitPayment = async (installment) => {
     console.log(installment);
     const receivedAmount = parseFloat(
       receivedAmounts[installment.date.toISOString().split("T")[0]] || 0
     );
+    const remark = remarks[installment.date.toISOString().split("T")[0]] || "";
 
     // Create updatedInstallment with only the required keys
     const updatedInstallment = {
@@ -175,6 +185,7 @@ const MonthlySchemeBorrower = () => {
       amount: receivedAmount, // Set amount to the received amount from the input
       paid: receivedAmount > 0, // Determine if paid based on received amount
       paidOn: receivedAmount > 0 ? new Date().toISOString() : null, // Save the current date in the desired format
+      remark, // Include the remark
     };
 
     setInstallments((prev) =>
@@ -185,12 +196,19 @@ const MonthlySchemeBorrower = () => {
               receivedAmount,
               paid: updatedInstallment.paid,
               paidOn: updatedInstallment.paidOn, // Update the paidOn date
+              remark: updatedInstallment.remark, // Update the remark
             }
           : inst
       )
     );
 
     setReceivedAmounts((prev) => {
+      const { [installment.date.toISOString().split("T")[0]]: _, ...rest } =
+        prev;
+      return rest;
+    });
+
+    setRemarks((prev) => {
       const { [installment.date.toISOString().split("T")[0]]: _, ...rest } =
         prev;
       return rest;
@@ -542,6 +560,12 @@ const MonthlySchemeBorrower = () => {
                             amount pending
                           </div>
                         )}
+                        {/* New message for remark */}
+                        {installment.remark && (
+                          <div className="mt-2 text-center text-gray-500">
+                            Remark: {installment.remark}
+                          </div>
+                        )}
                       </>
                     )}
                     {!installment.paid && (
@@ -557,6 +581,22 @@ const MonthlySchemeBorrower = () => {
                           }
                           onChange={(e) =>
                             handleReceivedAmountChange(
+                              installment.date.toISOString().split("T")[0],
+                              e.target.value
+                            )
+                          }
+                        />
+                        <input
+                          type="text"
+                          className="mt-2 w-full p-2 border rounded"
+                          placeholder="Remark"
+                          value={
+                            remarks[
+                              installment.date.toISOString().split("T")[0]
+                            ] || ""
+                          }
+                          onChange={(e) =>
+                            handleRemarkChange(
                               installment.date.toISOString().split("T")[0],
                               e.target.value
                             )
