@@ -135,6 +135,7 @@ const DailySchemeBorrower = () => {
         receivedAmount: paidInstallment ? paidInstallment.receivedAmount : 0,
         paid: paidInstallment ? paidInstallment.paid : false,
         paidOn: paidInstallment ? paidInstallment.paidOn : null, // Include paidOn date
+        remark: paidInstallment ? paidInstallment.remark : "", // Include remark
       });
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -186,6 +187,7 @@ const DailySchemeBorrower = () => {
       receivedAmount: receivedAmount,
       paid: true, // Set paid to true by default
       paidOn: receivedAmount > 0 ? new Date().toISOString() : null, // Set paidOn to today's date
+      remark: installment.remark || "Amount Paid", // Include the remark
     };
 
     // Update the installments state immediately
@@ -197,6 +199,7 @@ const DailySchemeBorrower = () => {
               receivedAmount,
               paid: updatedInstallment.paid,
               paidOn: updatedInstallment.paidOn, // Update the paidOn date
+              remark: updatedInstallment.remark, // Update the remark
             }
           : inst
       )
@@ -574,6 +577,11 @@ const DailySchemeBorrower = () => {
                             )}
                           </div>
                         )}
+                        {installment.remark && (
+                          <div className="mt-1 text-center text-gray-500">
+                            Remark: {installment.remark}
+                          </div>
+                        )}
                         {installment.demandedAmount >
                           installment.receivedAmount && (
                           <div className="mt-2 text-center text-red-500">
@@ -600,6 +608,18 @@ const DailySchemeBorrower = () => {
                               e.target.value
                             )
                           }
+                        />
+                        <input
+                          type="text"
+                          className="mt-2 w-full p-2 border rounded"
+                          placeholder="Remark"
+                          value={installment.remark || ""}
+                          onChange={(e) => {
+                            const updatedInstallments = installments.map((inst, idx) => 
+                              idx === index ? { ...inst, remark: e.target.value } : inst
+                            );
+                            setInstallments(updatedInstallments);
+                          }}
                         />
                         <button
                           className="mt-2 bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600 transition-colors"
