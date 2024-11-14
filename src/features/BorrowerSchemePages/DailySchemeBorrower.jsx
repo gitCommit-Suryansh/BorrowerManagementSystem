@@ -67,7 +67,7 @@ const DailySchemeBorrower = () => {
     const paidInstallments = installments.filter(inst => inst.paid);
     const totalDemanded = paidInstallments.length * borrower.emiAmount;
     const totalPaid = paidInstallments.reduce((sum, inst) => sum + inst.receivedAmount, 0);
-    const totalPending = totalDemanded - totalPaid;
+    const totalPending = Math.max(0, totalDemanded - totalPaid); // Use Math.max to ensure non-negative value
 
     setTotalDemandedAmount(totalDemanded);
     setTotalPaidAmount(totalPaid);
