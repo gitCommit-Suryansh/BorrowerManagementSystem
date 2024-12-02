@@ -11,6 +11,7 @@ import MonthlySchemeBorrower from './features/BorrowerSchemePages/MonthlySchemeB
 import FinanceSchemeBorrower from './features/BorrowerSchemePages/FinanceSchemeBorrower'
 import ModifyBorrowers from './features/ModifyPage/ModifyBorrowers';
 import ManageBorrowers from './pages/ManageBorrowers';
+import AccountManagement from './pages/AccountManagement';
 
 function App() {
   const location = useLocation(); // Get the current location
@@ -30,6 +31,7 @@ function App() {
         <Route path="/monthlyborrower" element={<MonthlySchemeBorrower />} />
         <Route path="/financeborrower" element={<FinanceSchemeBorrower />} />
         <Route path="/modifyborrowers" element={<ModifyBorrowers />} />
+        <Route path="/AccountManagement" element={<AccountManagement />} />
       </Routes>
     </div>
   );
