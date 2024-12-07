@@ -10,8 +10,18 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaPercent,
+  FaDownload,
 } from "react-icons/fa";
 import Header from "../navigation/Header";
+
+// Add this utility function at the top of the file, after imports
+const getCurrentDateString = () => {
+  const date = new Date();
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}_${month}_${year}`;
+};
 
 const MonthlySchemeBorrower = () => {
   const [monthlyBorrowers, setMonthlyBorrowers] = useState([]);
@@ -292,6 +302,43 @@ const MonthlySchemeBorrower = () => {
     }
   }, [installments, selectedBorrower]);
 
+  const handleDownloadData = () => {
+    const fileName = `MonthlyBorrowers_${getCurrentDateString()}.json`;
+    
+    // Format dates in ISO format with time set to midnight
+    const dataToDownload = monthlyBorrowers.map(borrower => {
+      // Helper function to format date to ISO midnight
+      const formatToISODate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0] + 'T00:00:00.000+00:00';
+      };
+
+      return {
+        ...borrower,
+        loanStartDate: formatToISODate(borrower.loanStartDate),
+        loanEndDate: formatToISODate(borrower.loanEndDate),
+        // Format dates in installments if they exist
+        installments: (borrower.installments || []).map(inst => ({
+          ...inst,
+          date: formatToISODate(inst.date),
+          paidOn: inst.paidOn ? formatToISODate(inst.paidOn) : null
+        }))
+      };
+    });
+    
+    const data = JSON.stringify(dataToDownload, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const href = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+  };
+
   if (loading) {
     return <div className="text-center mt-20">Loading...</div>;
   }
@@ -305,9 +352,17 @@ const MonthlySchemeBorrower = () => {
    {/* <Header/> */}
    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">
-          MONTHLY SCHEME LOANS
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">
+            MONTHLY SCHEME LOANS
+          </h2>
+          <button
+            onClick={handleDownloadData}
+            className="bg-green-600 text-white p-2 rounded-lg flex items-center hover:bg-green-700 transition-colors"
+          >
+            <FaDownload className="mr-2" /> Download Data
+          </button>
+        </div>
 
         {/* New Search Bar */}
         <div className="mb-4">
