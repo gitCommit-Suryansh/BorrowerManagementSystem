@@ -387,7 +387,7 @@ const DailySchemeBorrower = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div
                           className={`w-4 h-4 rounded-full ${
-                            borrower.loanStatus == "closed"
+                            borrower.balanceAmount == 0
                               ? "bg-green-500"
                               : "bg-orange-500"
                           }`}
@@ -563,7 +563,11 @@ const DailySchemeBorrower = () => {
                 {installments.map((installment, index) => (
                   <div
                     key={index}
-                    className="border p-4 rounded-lg shadow-md bg-gradient-to-br from-white to-gray-100"
+                    className={`border p-4 rounded-lg shadow-md ${
+                      !installment.paid && selectedBorrower.loanStatus === "closed"
+                        ? 'bg-gray-200'
+                        : 'bg-gradient-to-br from-white to-gray-100'
+                    }`}
                   >
                     <div className="flex items-center justify-center mb-2">
                       <FaCalendarAlt className="text-blue-500 mr-2" />
@@ -626,21 +630,24 @@ const DailySchemeBorrower = () => {
                       <>
                         <input
                           type="number"
-                          className="mt-2 w-full p-2 border rounded"
+                          className={`mt-2 w-full p-2 border rounded ${
+                            selectedBorrower.loanStatus === "closed" ? 'bg-gray-100 cursor-not-allowed' : ''
+                          }`}
                           placeholder="Received amount"
-                          value={
-                            receivedAmounts[formatDate(installment.date)] || ""
-                          }
+                          value={receivedAmounts[formatDate(installment.date)] || ""}
                           onChange={(e) =>
                             handleReceivedAmountChange(
                               formatDate(installment.date),
                               e.target.value
                             )
                           }
+                          disabled={selectedBorrower.loanStatus === "closed"}
                         />
                         <input
                           type="text"
-                          className="mt-2 w-full p-2 border rounded"
+                          className={`mt-2 w-full p-2 border rounded ${
+                            selectedBorrower.loanStatus === "closed" ? 'bg-gray-100 cursor-not-allowed' : ''
+                          }`}
                           placeholder="Remark"
                           value={installment.remark || ""}
                           onChange={(e) => {
@@ -649,10 +656,16 @@ const DailySchemeBorrower = () => {
                             );
                             setInstallments(updatedInstallments);
                           }}
+                          disabled={selectedBorrower.loanStatus === "closed"}
                         />
                         <button
-                          className="mt-2 bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600 transition-colors"
+                          className={`mt-2 bg-blue-500 text-white p-2 rounded w-full transition-colors ${
+                            selectedBorrower.loanStatus === "closed" 
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'hover:bg-blue-600'
+                          }`}
                           onClick={() => handleSubmitPayment(installment)}
+                          disabled={selectedBorrower.loanStatus === "closed"}
                         >
                           Submit Payment
                         </button>
