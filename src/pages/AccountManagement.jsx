@@ -30,7 +30,12 @@ const AccountManagement = () => {
         : "/fetch/fetchmonthlyborrower";
 
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}${endpoint}`);
-      setBorrowers(isDaily ? response.data.dailyBorrowers : response.data.monthlyBorrowers);
+      
+      // Filter borrowers to only include those with loanStatus "CLOSED"
+      const filteredBorrowers = (isDaily ? response.data.dailyBorrowers : response.data.monthlyBorrowers)
+        .filter(borrower => borrower.loanStatus === "closed");
+      
+      setBorrowers(filteredBorrowers);
       setLoading(false);
     } catch (error) {
       setError("Error fetching borrowers");
@@ -47,13 +52,14 @@ const AccountManagement = () => {
   useEffect(() => {
     const filterBorrowers = () => {
         const filtered = borrowers.filter((borrower) => {
+            const loanStartDate = new Date(borrower.loanStartDate);
             const loanEndDate = new Date(borrower.loanEndDate);
             const start = new Date(startDate);
             const end = new Date(endDate);
         
             // Ensure start and end dates are valid before comparing
             const isWithinDateRange =
-              (!startDate || isNaN(start.getTime()) || loanEndDate >= start) && 
+              (!startDate || isNaN(start.getTime()) || loanStartDate >= start) && 
               (!endDate || isNaN(end.getTime()) || loanEndDate <= end);
             const matchesSearchQuery = borrower.name.toLowerCase().includes(searchQuery.toLowerCase());
         
@@ -64,7 +70,7 @@ const AccountManagement = () => {
 
       // Calculate total profit
       const profit = filtered.reduce((acc, borrower) => {
-          return acc + (borrower.refundedAmount - borrower.principleAmount);
+          return acc + (borrower.refundAmount - borrower.principleAmount);
       }, 0);
       setTotalProfit(profit);
     };
