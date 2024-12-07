@@ -387,7 +387,7 @@ const DailySchemeBorrower = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div
                           className={`w-4 h-4 rounded-full ${
-                            borrower.balanceAmount == 0
+                            borrower.loanStatus == "closed"
                               ? "bg-green-500"
                               : "bg-orange-500"
                           }`}
