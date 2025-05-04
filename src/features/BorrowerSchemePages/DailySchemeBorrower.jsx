@@ -8,8 +8,17 @@ import {
   FaCalendarAlt,
   FaTimes,
   FaPercent,
+  FaDownload,
 } from "react-icons/fa";
 import Header from "../navigation/Header";
+
+const getCurrentDateString = () => {
+  const date = new Date();
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}_${month}_${year}`;
+};
 
 const DailySchemeBorrower = () => {
   const [dailyBorrowers, setDailyBorrowers] = useState([]);
@@ -21,6 +30,11 @@ const DailySchemeBorrower = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState("");
 
+  // New state variables for total demanded and paid amounts
+  const [totalDemandedAmount, setTotalDemandedAmount] = useState(0);
+  const [totalPaidAmount, setTotalPaidAmount] = useState(0);
+  const [totalPendingAmount, setTotalPendingAmount] = useState(0);
+
   // New state variable for today's total collection
   const [todaysTotalCollection, setTodaysTotalCollection] = useState(0);
 
@@ -30,6 +44,8 @@ const DailySchemeBorrower = () => {
   // New state variables for profit and loss
   const [totalProfit, setTotalProfit] = useState(0);
   const [totalLoss, setTotalLoss] = useState(0);
+  const [showClosedAccounts, setShowClosedAccounts] = useState(false);
+
   axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
 
   useEffect(() => {
@@ -54,6 +70,18 @@ const DailySchemeBorrower = () => {
 
     fetchDailyBorrowers();
   }, [dailyBorrowers]);
+
+  // New function to calculate total demanded and paid amounts
+  const calculateTotalAmounts = (installments, borrower) => {
+    const paidInstallments = installments.filter(inst => inst.paid);
+    const totalDemanded = paidInstallments.length * borrower.emiAmount;
+    const totalPaid = paidInstallments.reduce((sum, inst) => sum + inst.receivedAmount, 0);
+    const totalPending = Math.max(0, totalDemanded - totalPaid); // Use Math.max to ensure non-negative value
+
+    setTotalDemandedAmount(totalDemanded);
+    setTotalPaidAmount(totalPaid);
+    setTotalPendingAmount(totalPending);
+  };
 
   // New function to calculate today's total collection
   const calculateTodaysTotalCollection = (borrowers) => {
@@ -133,6 +161,7 @@ const DailySchemeBorrower = () => {
         receivedAmount: paidInstallment ? paidInstallment.receivedAmount : 0,
         paid: paidInstallment ? paidInstallment.paid : false,
         paidOn: paidInstallment ? paidInstallment.paidOn : null, // Include paidOn date
+        remark: paidInstallment ? paidInstallment.remark : "", // Include remark
       });
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -163,6 +192,7 @@ const DailySchemeBorrower = () => {
       paidInstallments
     );
     setInstallments(generatedInstallments);
+    calculateTotalAmounts(generatedInstallments, borrower); // Calculate totals when selecting borrower
     setIsModalOpen(true);
   };
 
@@ -184,21 +214,24 @@ const DailySchemeBorrower = () => {
       receivedAmount: receivedAmount,
       paid: true, // Set paid to true by default
       paidOn: receivedAmount > 0 ? new Date().toISOString() : null, // Set paidOn to today's date
+      remark: installment.remark || "Amount Paid", // Include the remark
     };
 
     // Update the installments state immediately
-    setInstallments((prev) =>
-      prev.map((inst) =>
-        inst.date.getTime() === installment.date.getTime()
-          ? {
-              ...inst,
-              receivedAmount,
-              paid: updatedInstallment.paid,
-              paidOn: updatedInstallment.paidOn, // Update the paidOn date
-            }
-          : inst
-      )
+    const updatedInstallments = installments.map((inst) =>
+      inst.date.getTime() === installment.date.getTime()
+        ? {
+            ...inst,
+            receivedAmount,
+            paid: updatedInstallment.paid,
+            paidOn: updatedInstallment.paidOn, // Update the paidOn date
+            remark: updatedInstallment.remark, // Update the remark
+          }
+        : inst
     );
+    
+    setInstallments(updatedInstallments);
+    calculateTotalAmounts(updatedInstallments, selectedBorrower); // Recalculate totals after payment
 
     // Clear the received amount for that date
     setReceivedAmounts((prev) => {
@@ -250,6 +283,43 @@ const DailySchemeBorrower = () => {
     }
   };
 
+  const handleDownloadData = () => {
+    const fileName = `DailyBorrowers_${getCurrentDateString()}.json`;
+    
+    // Format dates in ISO format with time set to midnight
+    const dataToDownload = dailyBorrowers.map(borrower => {
+      // Helper function to format date to ISO midnight
+      const formatToISODate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0] + 'T00:00:00.000+00:00';
+      };
+
+      return {
+        ...borrower,
+        loanStartDate: formatToISODate(borrower.loanStartDate),
+        loanEndDate: formatToISODate(borrower.loanEndDate),
+        // Format dates in installments if they exist
+        installments: (borrower.installments || []).map(inst => ({
+          ...inst,
+          date: formatToISODate(inst.date),
+          paidOn: inst.paidOn ? formatToISODate(inst.paidOn) : null
+        }))
+      };
+    });
+    
+    const data = JSON.stringify(dataToDownload, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const href = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+  };
+
   if (loading) {
     return <div className="text-center mt-20">Loading...</div>;
   }
@@ -263,9 +333,17 @@ const DailySchemeBorrower = () => {
    {/* <Header/> */}
    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">
-          DAILY SCHEME LOANS
-        </h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">
+            DAILY SCHEME LOANS
+          </h2>
+          <button
+            onClick={handleDownloadData}
+            className="bg-green-600 text-white p-2 rounded-lg flex items-center hover:bg-green-700 transition-colors"
+          >
+            <FaDownload className="mr-2" /> Download Data
+          </button>
+        </div>
 
         {/* New Search Bar */}
         <div className="mb-4">
@@ -278,8 +356,15 @@ const DailySchemeBorrower = () => {
           />
         </div>
 
-        {/* Display Today's Total Collection */}
+        {/* Toggle Button for Closed Accounts */}
+        <button
+          onClick={() => setShowClosedAccounts(true)}
+          className="mb-4 bg-yellow-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"
+        >
+          Show Closed Accounts
+        </button>
 
+        {/* Display Today's Total Collection */}
         <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
           <div className="overflow-x-auto">
             <div className="p-4 flex flex-wrap justify-between">
@@ -346,6 +431,7 @@ const DailySchemeBorrower = () => {
                       .toLowerCase()
                       .includes(searchQuery.toLowerCase())
                   )
+                  .sort((a, b) => new Date(a.loanStartDate) - new Date(b.loanStartDate))
                   .map((borrower) => (
                     <tr
                       key={borrower._id}
@@ -400,6 +486,87 @@ const DailySchemeBorrower = () => {
           </div>
         </div>
 
+        {/* Modal for Closed Accounts */}
+        {showClosedAccounts && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold">Closed Accounts</h3>
+                <button
+                  onClick={() => setShowClosedAccounts(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <FaTimes size={24} />
+                </button>
+              </div>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Principle Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Refund Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Refunded Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Discount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Loan Start Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Loan End Date
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {dailyBorrowers
+                    .filter((borrower) => borrower.loanStatus === "closed")
+                    .map((borrower) => (
+                      <tr key={borrower._id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                        <div
+                          className={`w-4 h-4 rounded-full bg-green-500`}
+                        ></div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {borrower.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          ₹{borrower.principleAmount}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          ₹{borrower.refundAmount}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          ₹{borrower.refundedAmount}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          ₹{borrower.discount > 0 ? borrower.discount : 0}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {formatDate(borrower.loanStartDate)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {formatDate(borrower.loanEndDate)}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {isModalOpen && selectedBorrower && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-8 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
@@ -414,13 +581,23 @@ const DailySchemeBorrower = () => {
                   <FaTimes size={24} />
                 </button>
               </div>
-              <div className="mb-4 text-lg font-semibold text-green-600">
-                {installments.filter((inst) => inst.paid).length}{" "}
-                {installments.filter((inst) => inst.paid).length === 1
-                  ? "Installment"
-                  : "Installments"}{" "}
-                paid
+              
+              {/* New section for total amounts */}
+              <div className="mb-4 p-4 bg-gray-100 rounded-lg flex justify-between">
+                <div className="text-lg font-semibold">
+                  <div>Total Demanded Amount: ₹{totalDemandedAmount}</div>
+                  <div>Total Paid Amount: ₹{totalPaidAmount}</div>
+                  <div>Total Pending Amount: ₹{totalPendingAmount}</div>
+                </div>
+                <div className="text-lg font-semibold text-green-600">
+                  {installments.filter((inst) => inst.paid).length}{" "}
+                  {installments.filter((inst) => inst.paid).length === 1
+                    ? "Installment"
+                    : "Installments"}{" "}
+                  paid
+                </div>
               </div>
+
               <div className="mb-4 flex items-center">
                 <input
                   type="number"
@@ -440,7 +617,11 @@ const DailySchemeBorrower = () => {
                 {installments.map((installment, index) => (
                   <div
                     key={index}
-                    className="border p-4 rounded-lg shadow-md bg-gradient-to-br from-white to-gray-100"
+                    className={`border p-4 rounded-lg shadow-md ${
+                      !installment.paid && selectedBorrower.loanStatus === "closed"
+                        ? 'bg-gray-200'
+                        : 'bg-gradient-to-br from-white to-gray-100'
+                    }`}
                   >
                     <div className="flex items-center justify-center mb-2">
                       <FaCalendarAlt className="text-blue-500 mr-2" />
@@ -483,6 +664,11 @@ const DailySchemeBorrower = () => {
                             )}
                           </div>
                         )}
+                        {installment.remark && (
+                          <div className="mt-1 text-center text-gray-500">
+                            Remark: {installment.remark}
+                          </div>
+                        )}
                         {installment.demandedAmount >
                           installment.receivedAmount && (
                           <div className="mt-2 text-center text-red-500">
@@ -498,21 +684,42 @@ const DailySchemeBorrower = () => {
                       <>
                         <input
                           type="number"
-                          className="mt-2 w-full p-2 border rounded"
+                          className={`mt-2 w-full p-2 border rounded ${
+                            selectedBorrower.loanStatus === "closed" ? 'bg-gray-100 cursor-not-allowed' : ''
+                          }`}
                           placeholder="Received amount"
-                          value={
-                            receivedAmounts[formatDate(installment.date)] || ""
-                          }
+                          value={receivedAmounts[formatDate(installment.date)] || ""}
                           onChange={(e) =>
                             handleReceivedAmountChange(
                               formatDate(installment.date),
                               e.target.value
                             )
                           }
+                          disabled={selectedBorrower.loanStatus === "closed"}
+                        />
+                        <input
+                          type="text"
+                          className={`mt-2 w-full p-2 border rounded ${
+                            selectedBorrower.loanStatus === "closed" ? 'bg-gray-100 cursor-not-allowed' : ''
+                          }`}
+                          placeholder="Remark"
+                          value={installment.remark || ""}
+                          onChange={(e) => {
+                            const updatedInstallments = installments.map((inst, idx) => 
+                              idx === index ? { ...inst, remark: e.target.value } : inst
+                            );
+                            setInstallments(updatedInstallments);
+                          }}
+                          disabled={selectedBorrower.loanStatus === "closed"}
                         />
                         <button
-                          className="mt-2 bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600 transition-colors"
+                          className={`mt-2 bg-blue-500 text-white p-2 rounded w-full transition-colors ${
+                            selectedBorrower.loanStatus === "closed" 
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'hover:bg-blue-600'
+                          }`}
                           onClick={() => handleSubmitPayment(installment)}
+                          disabled={selectedBorrower.loanStatus === "closed"}
                         >
                           Submit Payment
                         </button>

@@ -14,6 +14,8 @@ import Header from "../features/navigation/Header";
 const RegisterMonthlyBorrower = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
+  const [registeredBorrowers, setRegisteredBorrowers] = useState([]);
+  const [filteredNames, setFilteredNames] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     contact: "",
@@ -31,12 +33,48 @@ const RegisterMonthlyBorrower = () => {
     reference: "", // Added reference field
   });
 
+  useEffect(() => {
+    const fetchRegisteredBorrowers = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/fetch/fetchmonthlyborrower`);
+        setRegisteredBorrowers(response.data.monthlyBorrowers);
+      } catch (error) {
+        console.error("Error fetching registered borrowers:", error);
+      }
+    };
+
+    fetchRegisteredBorrowers();
+  }, []);
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
+
+    if (name === 'name' && value) {
+      const filtered = registeredBorrowers.filter(borrower =>
+        borrower.name.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setFilteredNames(filtered);
+    } else {
+      setFilteredNames([]);
+    }
+  };
+
+  const handleNameSelect = (selectedName) => {
+    setFormData({
+      ...formData,
+      name: selectedName.name,
+      contact: selectedName.contact,
+      aadharNumber: selectedName.aadharNumber,
+      chequeNumber: selectedName.chequeNumber,
+      address: selectedName.address,
+      reference: selectedName.reference,
+    });
+    setFilteredNames([]);
   };
 
   useEffect(() => {
@@ -122,7 +160,21 @@ const RegisterMonthlyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.name}
               />
+              {filteredNames.length > 0 && (
+                <ul className="absolute bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-y-auto">
+                  {filteredNames.map((borrower) => (
+                    <li
+                      key={borrower.aadharNumber}
+                      className="py-2 px-4 hover:bg-gray-200 cursor-pointer"
+                      onClick={() => handleNameSelect(borrower)}
+                    >
+                      {borrower.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div>
               <label
@@ -138,6 +190,7 @@ const RegisterMonthlyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.contact}
               />
             </div>
             <div>
@@ -154,6 +207,7 @@ const RegisterMonthlyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.aadharNumber}
               />
             </div>
             <div>
@@ -170,6 +224,7 @@ const RegisterMonthlyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.chequeNumber}
               />
             </div>
             <div>
@@ -302,6 +357,7 @@ const RegisterMonthlyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.address}
               />
             </div>
             <div>
@@ -318,6 +374,7 @@ const RegisterMonthlyBorrower = () => {
                 required
                 className="block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleChange}
+                value={formData.reference}
               />
             </div>
           </div>

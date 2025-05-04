@@ -10,8 +10,18 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaPercent,
+  FaDownload,
 } from "react-icons/fa";
 import Header from "../navigation/Header";
+
+// Add this utility function at the top of the file, after imports
+const getCurrentDateString = () => {
+  const date = new Date();
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}_${month}_${year}`;
+};
 
 const MonthlySchemeBorrower = () => {
   const [monthlyBorrowers, setMonthlyBorrowers] = useState([]);
@@ -20,6 +30,7 @@ const MonthlySchemeBorrower = () => {
   const [selectedBorrower, setSelectedBorrower] = useState(null);
   const [installments, setInstallments] = useState([]);
   const [receivedAmounts, setReceivedAmounts] = useState({});
+  const [remarks, setRemarks] = useState({}); // New state for remarks
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(""); // New state for discount amount
 
@@ -34,6 +45,8 @@ const MonthlySchemeBorrower = () => {
 
   // New state for total paid amount
   const [totalPaidAmount, setTotalPaidAmount] = useState(0);
+
+  const [showClosedAccounts, setShowClosedAccounts] = useState(false); // New state for showing closed accounts
 
   axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
   useEffect(() => {
@@ -114,6 +127,7 @@ const MonthlySchemeBorrower = () => {
         receivedAmount: paidInstallment ? paidInstallment.amount : 0, // Set receivedAmount to the amount from the fetched installment if paid
         paid: !!paidInstallment, // Set paid status based on whether a matching installment was found
         paidOn: paidInstallment ? paidInstallment.paidOn : null,
+        remark: paidInstallment ? paidInstallment.remark : "", // Set remark if available
       });
 
       currentDate.setMonth(currentDate.getMonth() + 1); // Move to the next month
@@ -161,11 +175,19 @@ const MonthlySchemeBorrower = () => {
     }));
   };
 
+  const handleRemarkChange = (date, remark) => {
+    setRemarks((prev) => ({
+      ...prev,
+      [date]: remark,
+    }));
+  };
+
   const handleSubmitPayment = async (installment) => {
     console.log(installment);
     const receivedAmount = parseFloat(
       receivedAmounts[installment.date.toISOString().split("T")[0]] || 0
     );
+    const remark = remarks[installment.date.toISOString().split("T")[0]] || "";
 
     // Create updatedInstallment with only the required keys
     const updatedInstallment = {
@@ -173,6 +195,7 @@ const MonthlySchemeBorrower = () => {
       amount: receivedAmount, // Set amount to the received amount from the input
       paid: receivedAmount > 0, // Determine if paid based on received amount
       paidOn: receivedAmount > 0 ? new Date().toISOString() : null, // Save the current date in the desired format
+      remark, // Include the remark
     };
 
     setInstallments((prev) =>
@@ -183,12 +206,19 @@ const MonthlySchemeBorrower = () => {
               receivedAmount,
               paid: updatedInstallment.paid,
               paidOn: updatedInstallment.paidOn, // Update the paidOn date
+              remark: updatedInstallment.remark, // Update the remark
             }
           : inst
       )
     );
 
     setReceivedAmounts((prev) => {
+      const { [installment.date.toISOString().split("T")[0]]: _, ...rest } =
+        prev;
+      return rest;
+    });
+
+    setRemarks((prev) => {
       const { [installment.date.toISOString().split("T")[0]]: _, ...rest } =
         prev;
       return rest;
@@ -272,6 +302,43 @@ const MonthlySchemeBorrower = () => {
     }
   }, [installments, selectedBorrower]);
 
+  const handleDownloadData = () => {
+    const fileName = `MonthlyBorrowers_${getCurrentDateString()}.json`;
+    
+    // Format dates in ISO format with time set to midnight
+    const dataToDownload = monthlyBorrowers.map(borrower => {
+      // Helper function to format date to ISO midnight
+      const formatToISODate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0] + 'T00:00:00.000+00:00';
+      };
+
+      return {
+        ...borrower,
+        loanStartDate: formatToISODate(borrower.loanStartDate),
+        loanEndDate: formatToISODate(borrower.loanEndDate),
+        // Format dates in installments if they exist
+        installments: (borrower.installments || []).map(inst => ({
+          ...inst,
+          date: formatToISODate(inst.date),
+          paidOn: inst.paidOn ? formatToISODate(inst.paidOn) : null
+        }))
+      };
+    });
+    
+    const data = JSON.stringify(dataToDownload, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const href = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+  };
+
   if (loading) {
     return <div className="text-center mt-20">Loading...</div>;
   }
@@ -285,9 +352,17 @@ const MonthlySchemeBorrower = () => {
    {/* <Header/> */}
    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8 mt-12">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">
-          MONTHLY SCHEME LOANS
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-3xl font-bold text-white shadow-lg p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500">
+            MONTHLY SCHEME LOANS
+          </h2>
+          <button
+            onClick={handleDownloadData}
+            className="bg-green-600 text-white p-2 rounded-lg flex items-center hover:bg-green-700 transition-colors"
+          >
+            <FaDownload className="mr-2" /> Download Data
+          </button>
+        </div>
 
         {/* New Search Bar */}
         <div className="mb-4">
@@ -299,6 +374,12 @@ const MonthlySchemeBorrower = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        <button
+          onClick={() => setShowClosedAccounts(true)}
+          className="mb-4 bg-yellow-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"
+        >
+          Show Closed Accounts
+        </button>
 
         <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
           <div className="overflow-x-auto">
@@ -362,6 +443,7 @@ const MonthlySchemeBorrower = () => {
                       .toLowerCase()
                       .includes(searchQuery.toLowerCase())
                   )
+                  .sort((a, b) => new Date(a.loanStartDate) - new Date(b.loanStartDate))
                   .map((borrower) => (
                     <tr
                       key={borrower._id}
@@ -406,10 +488,18 @@ const MonthlySchemeBorrower = () => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {new Date(borrower.loanStartDate).toLocaleDateString()}
+                        {new Date(borrower.loanStartDate).toLocaleDateString("en-GB", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {new Date(borrower.loanEndDate).toLocaleDateString()}
+                        {new Date(borrower.loanEndDate).toLocaleDateString("en-GB", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
                       </td>
                     </tr>
                   ))}
@@ -477,19 +567,20 @@ const MonthlySchemeBorrower = () => {
                 {installments.map((installment, index) => (
                   <div
                     key={index}
-                    className="border p-4 rounded-lg shadow-md bg-gradient-to-br from-white to-gray-100"
+                    className={`border p-4 rounded-lg shadow-md ${
+                      !installment.paid && selectedBorrower.loanStatus === "closed"
+                        ? 'bg-gray-200'
+                        : 'bg-gradient-to-br from-white to-gray-100'
+                    }`}
                   >
                     <div className="flex items-center justify-center mb-2">
                       <FaCalendarAlt className="text-blue-500 mr-2" />
                       <div className="text-lg font-semibold">
-                        {new Date(installment.date).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}
+                        {new Date(installment.date).toLocaleDateString("en-GB", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
                       </div>
                     </div>
                     <div className="text-center text-gray-600">
@@ -511,14 +602,11 @@ const MonthlySchemeBorrower = () => {
                         {installment.paidOn && (
                           <div className="mt-1 text-center text-gray-500">
                             Paid on:{" "}
-                            {new Date(installment.paidOn).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              }
-                            )}
+                            {new Date(installment.paidOn).toLocaleDateString("en-GB", {
+                              year: "numeric",
+                              month: "numeric",
+                              day: "numeric",
+                            })}
                           </div>
                         )}
                         {/* New message for pending amount */}
@@ -531,13 +619,21 @@ const MonthlySchemeBorrower = () => {
                             amount pending
                           </div>
                         )}
+                        {/* New message for remark */}
+                        {installment.remark && (
+                          <div className="mt-2 text-center text-gray-500">
+                            Remark: {installment.remark}
+                          </div>
+                        )}
                       </>
                     )}
                     {!installment.paid && (
                       <>
                         <input
                           type="number"
-                          className="mt-2 w-full p-2 border rounded"
+                          className={`mt-2 w-full p-2 border rounded ${
+                            selectedBorrower.loanStatus === "closed" ? 'bg-gray-100 cursor-not-allowed' : ''
+                          }`}
                           placeholder="Received amount"
                           value={
                             receivedAmounts[
@@ -550,10 +646,35 @@ const MonthlySchemeBorrower = () => {
                               e.target.value
                             )
                           }
+                          disabled={selectedBorrower.loanStatus === "closed"}
+                        />
+                        <input
+                          type="text"
+                          className={`mt-2 w-full p-2 border rounded ${
+                            selectedBorrower.loanStatus === "closed" ? 'bg-gray-100 cursor-not-allowed' : ''
+                          }`}
+                          placeholder="Remark"
+                          value={
+                            remarks[
+                              installment.date.toISOString().split("T")[0]
+                            ] || ""
+                          }
+                          onChange={(e) =>
+                            handleRemarkChange(
+                              installment.date.toISOString().split("T")[0],
+                              e.target.value
+                            )
+                          }
+                          disabled={selectedBorrower.loanStatus === "closed"}
                         />
                         <button
-                          className="mt-2 bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600 transition-colors"
+                          className={`mt-2 bg-blue-500 text-white p-2 rounded w-full transition-colors ${
+                            selectedBorrower.loanStatus === "closed" 
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'hover:bg-blue-600'
+                          }`}
                           onClick={() => handleSubmitPayment(installment)}
+                          disabled={selectedBorrower.loanStatus === "closed"}
                         >
                           Submit Payment
                         </button>
@@ -580,6 +701,79 @@ const MonthlySchemeBorrower = () => {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Toggle Button for Closed Accounts */}
+       
+
+        {/* Modal for Closed Accounts */}
+        {showClosedAccounts && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold">Closed Accounts</h3>
+                <button
+                  onClick={() => setShowClosedAccounts(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <FaTimes size={24} />
+                </button>
+              </div>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Principle Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Loan Start Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Loan End Date
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {monthlyBorrowers
+                    .filter((borrower) => borrower.loanStatus === "closed")
+                    .map((borrower) => (
+                      <tr key={borrower._id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {borrower.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          ₹{borrower.principleAmount}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {new Date(borrower.loanStartDate).toLocaleDateString("en-GB", {
+                            year: "numeric",
+                            month: "numeric",
+                            day: "numeric",
+                          })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {new Date(borrower.loanEndDate).toLocaleDateString("en-GB", {
+                            year: "numeric",
+                            month: "numeric",
+                            day: "numeric",
+                          })}
+                        </td>
+                        
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
