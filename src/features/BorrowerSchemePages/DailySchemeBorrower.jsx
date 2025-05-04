@@ -585,9 +585,9 @@ const DailySchemeBorrower = () => {
               {/* New section for total amounts */}
               <div className="mb-4 p-4 bg-gray-100 rounded-lg flex justify-between">
                 <div className="text-lg font-semibold">
-                  <div>Total Demanded Amount: ₹{totalDemandedAmount}</div>
+{/*                   <div>Total Demanded Amount: ₹{totalDemandedAmount}</div> */}
                   <div>Total Paid Amount: ₹{totalPaidAmount}</div>
-                  <div>Total Pending Amount: ₹{totalPendingAmount}</div>
+{/*                   <div>Total Pending Amount: ₹{totalPendingAmount}</div> */}
                 </div>
                 <div className="text-lg font-semibold text-green-600">
                   {installments.filter((inst) => inst.paid).length}{" "}
