@@ -34,6 +34,7 @@ const DailySchemeBorrower = () => {
   const [totalDemandedAmount, setTotalDemandedAmount] = useState(0);
   const [totalPaidAmount, setTotalPaidAmount] = useState(0);
   const [totalPendingAmount, setTotalPendingAmount] = useState(0);
+  const [totalAmountTillDate, setTotalAmountTillDate] = useState(0);
 
   // New state variable for today's total collection
   const [todaysTotalCollection, setTodaysTotalCollection] = useState(0);
@@ -76,11 +77,26 @@ const DailySchemeBorrower = () => {
     const paidInstallments = installments.filter(inst => inst.paid);
     const totalDemanded = paidInstallments.length * borrower.emiAmount;
     const totalPaid = paidInstallments.reduce((sum, inst) => sum + inst.receivedAmount, 0);
-    const totalPending = Math.max(0, totalDemanded - totalPaid); // Use Math.max to ensure non-negative value
+    const totalPending = Math.max(0, totalDemanded - totalPaid);
+
+    // Calculate total amount till date
+    const startDate = new Date(borrower.loanStartDate);
+    const today = new Date();
+    const endDate = new Date(borrower.loanEndDate);
+    
+    // Use the earlier date between today and loan end date
+    const effectiveEndDate = today < endDate ? today : endDate;
+    
+    // Calculate days between start date and effective end date
+    const daysDiff = Math.ceil((effectiveEndDate - startDate) / (1000 * 60 * 60 * 24));
+    
+    // Calculate total amount till date
+    const totalTillDate = daysDiff * borrower.emiAmount;
 
     setTotalDemandedAmount(totalDemanded);
     setTotalPaidAmount(totalPaid);
     setTotalPendingAmount(totalPending);
+    setTotalAmountTillDate(totalTillDate);
   };
 
   // New function to calculate today's total collection
@@ -429,9 +445,10 @@ const DailySchemeBorrower = () => {
                   .filter((borrower) =>
                     borrower.name
                       .toLowerCase()
-                      .includes(searchQuery.toLowerCase())
+                      .includes(searchQuery.toLowerCase()) &&
+                    borrower.loanStatus === "pending"
                   )
-                  .sort((a, b) => new Date(a.loanStartDate) - new Date(b.loanStartDate))
+                  .sort((a, b) => new Date(b.loanStartDate) - new Date(a.loanStartDate))
                   .map((borrower) => (
                     <tr
                       key={borrower._id}
@@ -585,9 +602,8 @@ const DailySchemeBorrower = () => {
               {/* New section for total amounts */}
               <div className="mb-4 p-4 bg-gray-100 rounded-lg flex justify-between">
                 <div className="text-lg font-semibold">
-{/*                   <div>Total Demanded Amount: ₹{totalDemandedAmount}</div> */}
+                  <div>Total Amount Till Date: ₹{totalAmountTillDate}</div>
                   <div>Total Paid Amount: ₹{totalPaidAmount}</div>
-{/*                   <div>Total Pending Amount: ₹{totalPendingAmount}</div> */}
                 </div>
                 <div className="text-lg font-semibold text-green-600">
                   {installments.filter((inst) => inst.paid).length}{" "}
