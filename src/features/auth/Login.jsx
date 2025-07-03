@@ -11,7 +11,7 @@ const Login = () => {
   //   await axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
   //  }catch(err){console.log(err)}
     e.preventDefault();
-    if(email === 'admin@gmail.com' && password === 'admin12345'){
+    if(email === 'admin@gmail.com' && password === 'abcd1234'){
         
       navigate('/home');
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
