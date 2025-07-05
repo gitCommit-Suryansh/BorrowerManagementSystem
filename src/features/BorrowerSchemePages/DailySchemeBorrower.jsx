@@ -46,8 +46,18 @@ const DailySchemeBorrower = () => {
   const [totalProfit, setTotalProfit] = useState(0);
   const [totalLoss, setTotalLoss] = useState(0);
   const [showClosedAccounts, setShowClosedAccounts] = useState(false);
+const [user, setuser] = useState(null)
 
 
+  
+
+
+useEffect(() => {
+  const user = localStorage.getItem("user");
+  if (user) {
+    setuser(user);
+  }
+}, []);
 
   useEffect(() => {
     const fetchDailyBorrowers = async () => {
@@ -388,9 +398,11 @@ const DailySchemeBorrower = () => {
                 <h4 className="text-md font-semibold">
                   <span> Today's Total Collection: ₹{todaysTotalCollection}</span>
                 </h4>
-                <h4 className="text-md font-semibold">
-                  <span> Total Profit: ₹{totalProfit}</span>
-                </h4>
+                {user === "admin" && (
+                  <h4 className="text-md font-semibold">
+                    <span> Total Profit: ₹{totalProfit}</span>
+                  </h4>
+                )}
               </div>
               <div>
                 <h3 className="text-md font-semibold">
