@@ -17,6 +17,7 @@ const Header = () => {
             <li><Link to="/financeborrower" className="block hover:text-gray-200 transition duration-300">Finance Borrower</Link></li>
             <li><Link to="/modifyborrowers" className="block hover:text-gray-200 transition duration-300">Modify Borrowers</Link></li>
             <li><Link to="/AccountManagement" className="block hover:text-gray-200 transition duration-300">See Stats</Link></li>
+            <li><Link to="/MaturityLookup" className="block hover:text-gray-200 transition duration-300">Maturity Lookup</Link></li>
             <li><Link to="/" onClick={() => { localStorage.clear(); }} className="block text-white hover:text-gray-200 transition duration-300 font-bold">Logout</Link></li>
           </ul>
           <div className="md:hidden">
@@ -39,6 +40,7 @@ const Header = () => {
               <li><Link to="/dailyborrower" className="block text-white hover:text-gray-200 transition duration-300">Daily Borrower</Link></li>
               <li><Link to="/monthlyborrower" className="block text-white hover:text-gray-200 transition duration-300">Monthly Borrower</Link></li>
               <li><Link to="/financeborrower" className="block text-white hover:text-gray-200 transition duration-300">Finance Borrower</Link></li>
+              <li><Link to="/MaturityLookup" className="block text-white hover:text-gray-200 transition duration-300">Maturity Lookup</Link></li>
               {/* <li><Link to="/modifyborrowers" className="block text-white hover:text-gray-200 transition duration-300">Modify Borrowers</Link></li> */}
               <li><Link to="/" onClick={() => { localStorage.clear(); }}  className="block text-white hover:text-gray-200 transition duration-300 font-bold">Logout</Link></li>
             </ul>

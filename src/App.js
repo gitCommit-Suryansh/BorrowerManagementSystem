@@ -12,6 +12,7 @@ import FinanceSchemeBorrower from './features/BorrowerSchemePages/FinanceSchemeB
 import ModifyBorrowers from './features/ModifyPage/ModifyBorrowers';
 import ManageBorrowers from './pages/ManageBorrowers';
 import AccountManagement from './pages/AccountManagement';
+import MaturityLookup from './features/MaturityLookup';
 
 function App() {
   const location = useLocation(); // Get the current location
@@ -32,6 +33,7 @@ function App() {
         <Route path="/financeborrower" element={<FinanceSchemeBorrower />} />
         <Route path="/modifyborrowers" element={<ModifyBorrowers />} />
         <Route path="/AccountManagement" element={<AccountManagement />} />
+        <Route path='/MaturityLookup' element={<MaturityLookup/>}/>
       </Routes>
     </div>
   );
