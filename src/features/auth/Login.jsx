@@ -7,14 +7,11 @@ const Login = () => {
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
-  //  try{
-  //   await axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
-  //  }catch(err){console.log(err)}
+
     e.preventDefault();
     if(email === 'admin@gmail.com' && password === 'abcd1234'){
         
       navigate('/home');
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
     }
     if(email==='gaurav@admin.com' && password==='gaurav123'){
       localStorage.setItem('user', 'admin');

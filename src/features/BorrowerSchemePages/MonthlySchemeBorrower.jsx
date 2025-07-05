@@ -48,7 +48,7 @@ const MonthlySchemeBorrower = () => {
 
   const [showClosedAccounts, setShowClosedAccounts] = useState(false); // New state for showing closed accounts
 
-  axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
+  
   useEffect(() => {
     const fetchMonthlyBorrowers = async () => {
       try {

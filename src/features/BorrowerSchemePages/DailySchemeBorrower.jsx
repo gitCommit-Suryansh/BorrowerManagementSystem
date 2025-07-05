@@ -47,7 +47,7 @@ const DailySchemeBorrower = () => {
   const [totalLoss, setTotalLoss] = useState(0);
   const [showClosedAccounts, setShowClosedAccounts] = useState(false);
 
-  axios.post(`${process.env.REACT_APP_BACKEND_URL}/ping`, {});
+
 
   useEffect(() => {
     const fetchDailyBorrowers = async () => {
