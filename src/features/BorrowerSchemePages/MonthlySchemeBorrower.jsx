@@ -104,8 +104,6 @@ const MonthlySchemeBorrower = () => {
   ).length;
 
   const generateInstallments = (borrower, paidInstallments) => {
-    console.log(borrower);
-    console.log(paidInstallments);
     const installments = [];
     const startDate = new Date(borrower.loanStartDate);
     const endDate = new Date(borrower.loanEndDate);
@@ -128,10 +126,30 @@ const MonthlySchemeBorrower = () => {
         paid: !!paidInstallment, // Set paid status based on whether a matching installment was found
         paidOn: paidInstallment ? paidInstallment.paidOn : null,
         remark: paidInstallment ? paidInstallment.remark : "", // Set remark if available
+        isExtended: false, // Mark as original EMI
       });
 
       currentDate.setMonth(currentDate.getMonth() + 1); // Move to the next month
     }
+
+    // Add extended EMIs (EMIs beyond the original tenure)
+    const extendedInstallments = paidInstallments.filter((inst) => {
+      const instDate = new Date(inst.date);
+      return instDate > endDate;
+    });
+
+    extendedInstallments.forEach((extendedInst) => {
+      installments.push({
+        date: new Date(extendedInst.date),
+        demandedAmount: borrower.interestAmount,
+        receivedAmount: extendedInst.amount,
+        paid: true,
+        paidOn: extendedInst.paidOn,
+        remark: extendedInst.remark || "",
+        isExtended: true, // Mark as extended EMI
+      });
+    });
+
     return installments;
   };
 
@@ -207,6 +225,7 @@ const MonthlySchemeBorrower = () => {
               paid: updatedInstallment.paid,
               paidOn: updatedInstallment.paidOn, // Update the paidOn date
               remark: updatedInstallment.remark, // Update the remark
+              isTemporary: false, // Mark as no longer temporary since it's being saved
             }
           : inst
       )
@@ -290,6 +309,30 @@ const MonthlySchemeBorrower = () => {
     }
   };
 
+  const handleGenerateNextEMI = () => {
+    if (!selectedBorrower) return;
+
+    // Calculate the next EMI date (one month after the last EMI)
+    const lastEMI = installments[installments.length - 1];
+    const nextEMIDate = new Date(lastEMI.date);
+    nextEMIDate.setMonth(nextEMIDate.getMonth() + 1);
+
+    // Add to local state only (no database save yet)
+    setInstallments((prev) => [
+      ...prev,
+      {
+        date: nextEMIDate,
+        demandedAmount: selectedBorrower.interestAmount,
+        receivedAmount: 0,
+        paid: false,
+        paidOn: null,
+        remark: "",
+        isExtended: true, // Mark as extended EMI
+        isTemporary: true, // Mark as temporary (not saved to database yet)
+      },
+    ]);
+  };
+
   // New useEffect to recalculate totalPendingAmount whenever installments or selectedBorrower changes
   useEffect(() => {
     if (selectedBorrower) {
@@ -301,6 +344,27 @@ const MonthlySchemeBorrower = () => {
       setTotalPaidAmount(totalPaidAmount); // Update total paid amount
     }
   }, [installments, selectedBorrower]);
+
+  // Function to check if "Generate Next EMI" button should be shown
+  const shouldShowGenerateNextEMI = () => {
+    if (!selectedBorrower || selectedBorrower.balanceAmount === 0) return false;
+    
+    // Check if all original tenure EMIs are paid
+    const originalEMIs = installments.filter(inst => !inst.isExtended);
+    const allOriginalEMIsPaid = originalEMIs.length > 0 && originalEMIs.every(inst => inst.paid);
+    
+    // Check if the last EMI is paid (to ensure we can generate the next one)
+    const lastEMI = installments[installments.length - 1];
+    const lastEMIIsPaid = lastEMI && lastEMI.paid;
+    
+    // Don't show button if there's already a temporary EMI card
+    const hasTemporaryEMI = installments.some(inst => inst.isTemporary);
+    
+    return allOriginalEMIsPaid && lastEMIIsPaid && !hasTemporaryEMI;
+  };
+
+  // Count extended EMIs (excluding temporary ones)
+  const extendedEMICount = installments.filter(inst => inst.isExtended && !inst.isTemporary).length;
 
   const handleDownloadData = () => {
     const fileName = `MonthlyBorrowers_${getCurrentDateString()}.json`;
@@ -546,6 +610,16 @@ const MonthlySchemeBorrower = () => {
                   <FaPercent className="mr-2" /> Apply Discount
                 </button>
               </div>
+              {shouldShowGenerateNextEMI() && (
+                <div className="mb-4">
+                  <button
+                    className="bg-blue-500 text-white p-2 rounded flex items-center hover:bg-blue-600 transition-colors"
+                    onClick={handleGenerateNextEMI}
+                  >
+                    <FaCalendarAlt className="mr-2" /> Generate Next EMI
+                  </button>
+                </div>
+              )}
               <h3 className="text-lg font-semibold mb-2 text-green-500">
                 {selectedBorrower.installments.length}{" "}
                 {selectedBorrower.installments.length > 1
@@ -553,6 +627,11 @@ const MonthlySchemeBorrower = () => {
                   : "Installment"}{" "}
                 paid {/* Total Count of Installments */}
               </h3>
+              {extendedEMICount > 0 && (
+                <h3 className="text-lg font-semibold mb-2 text-blue-500">
+                  Extended EMIs: {extendedEMICount}
+                </h3>
+              )}
               <h3 className="text-lg font-semibold mb-2 text-green-500">
                 {selectedBorrower.balanceAmount === 0 ? (
                   <span>Principle Amount Paid Back</span>
@@ -570,6 +649,10 @@ const MonthlySchemeBorrower = () => {
                     className={`border p-4 rounded-lg shadow-md ${
                       !installment.paid && selectedBorrower.loanStatus === "closed"
                         ? 'bg-gray-200'
+                        : installment.isTemporary
+                        ? 'bg-gradient-to-br from-yellow-100 to-yellow-200 border-yellow-300'
+                        : installment.isExtended
+                        ? 'bg-gradient-to-br from-blue-100 to-blue-200 border-blue-300'
                         : 'bg-gradient-to-br from-white to-gray-100'
                     }`}
                   >
@@ -581,6 +664,11 @@ const MonthlySchemeBorrower = () => {
                           month: "numeric",
                           day: "numeric",
                         })}
+                        {installment.isExtended && (
+                          <span className="ml-2 text-xs bg-blue-500 text-white px-2 py-1 rounded">
+                            {installment.isTemporary ? "Temporary" : "Extended"}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="text-center text-gray-600">
