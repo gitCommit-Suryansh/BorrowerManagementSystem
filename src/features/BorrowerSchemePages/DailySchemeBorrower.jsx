@@ -538,6 +538,9 @@ useEffect(() => {
                       Name
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Contact
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Principle Amount
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -569,6 +572,9 @@ useEffect(() => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {borrower.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {borrower.contact }
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           ₹{borrower.principleAmount}
