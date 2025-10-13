@@ -11,6 +11,7 @@ import {
   FaDownload,
 } from "react-icons/fa";
 import Header from "../navigation/Header";
+import ProgressBar from "../../utils/ProgressBar";
 
 const getCurrentDateString = () => {
   const date = new Date();
@@ -23,6 +24,7 @@ const getCurrentDateString = () => {
 const DailySchemeBorrower = () => {
   const [dailyBorrowers, setDailyBorrowers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingPercentage, setLoadingPercentage] = useState(0);
   const [error, setError] = useState(null);
   const [selectedBorrower, setSelectedBorrower] = useState(null);
   const [installments, setInstallments] = useState([]);
@@ -61,12 +63,30 @@ const DailySchemeBorrower = () => {
 
   useEffect(() => {
     const fetchDailyBorrowers = async () => {
+      let currentProgress = 0;
+      const interval = setInterval(() => {
+        currentProgress += 5;
+        if (currentProgress < 90) {
+          setLoadingPercentage(currentProgress);
+        }
+      }, 200); // Update percentage every 200ms
+
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/fetch/fetchdailyborrower`
         );
+
+        // 2. Stop simulation and set to 100% on success
+        clearInterval(interval);
+        setLoadingPercentage(100);
+
         setDailyBorrowers(response.data.dailyBorrowers);
-        setLoading(false);
+        setLoading(false); // This will happen after the animation completes visually
+
+        // Add a small delay so the user sees the 100% state briefly
+        setTimeout(() => {
+          setLoading(false);
+        }, 500); // 500ms delay
 
         // Calculate profit and loss after fetching borrowers
         calculateProfitAndLoss(response.data.dailyBorrowers);
@@ -74,13 +94,18 @@ const DailySchemeBorrower = () => {
         // Calculate today's total collection after fetching borrowers
         calculateTodaysTotalCollection(response.data.dailyBorrowers);
       } catch (err) {
+        // 3. Stop simulation and reset on error
+        clearInterval(interval);
         setError("Error fetching daily borrowers");
         setLoading(false);
       }
+
+      // 4. Cleanup function to ensure interval is cleared on unmount
+      return () => clearInterval(interval);
+
     };
 
     fetchDailyBorrowers();
-  // }, [dailyBorrowers]);
   }, []);
 
   // New function to calculate total demanded and paid amounts
@@ -348,7 +373,7 @@ const DailySchemeBorrower = () => {
   };
 
   if (loading) {
-    return <div className="text-center mt-20">Loading...</div>;
+    return <ProgressBar percentage={loadingPercentage} />;
   }
 
   if (error) {
@@ -478,8 +503,8 @@ const DailySchemeBorrower = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div
                             className={`w-4 h-4 rounded-full ${borrower.balanceAmount == 0
-                                ? "bg-green-500"
-                                : "bg-orange-500"
+                              ? "bg-green-500"
+                              : "bg-orange-500"
                               }`}
                           ></div>
                         </td>
@@ -662,8 +687,8 @@ const DailySchemeBorrower = () => {
                     <div
                       key={index}
                       className={`border p-4 rounded-lg shadow-md ${!installment.paid && selectedBorrower.loanStatus === "closed"
-                          ? 'bg-gray-200'
-                          : 'bg-gradient-to-br from-white to-gray-100'
+                        ? 'bg-gray-200'
+                        : 'bg-gradient-to-br from-white to-gray-100'
                         }`}
                     >
                       <div className="flex items-center justify-center mb-2">
@@ -754,8 +779,8 @@ const DailySchemeBorrower = () => {
                           />
                           <button
                             className={`mt-2 bg-blue-500 text-white p-2 rounded w-full transition-colors ${selectedBorrower.loanStatus === "closed"
-                                ? 'opacity-50 cursor-not-allowed'
-                                : 'hover:bg-blue-600'
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'hover:bg-blue-600'
                               }`}
                             onClick={() => handleSubmitPayment(installment)}
                             disabled={selectedBorrower.loanStatus === "closed"}
