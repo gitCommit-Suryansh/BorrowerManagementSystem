@@ -80,7 +80,8 @@ const DailySchemeBorrower = () => {
     };
 
     fetchDailyBorrowers();
-  }, [dailyBorrowers]);
+  // }, [dailyBorrowers]);
+  }, []);
 
   // New function to calculate total demanded and paid amounts
   const calculateTotalAmounts = (installments, borrower) => {
