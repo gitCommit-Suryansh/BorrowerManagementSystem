@@ -124,9 +124,9 @@ const DailySchemeBorrower = () => {
     // Calculate total amount till date
     const totalTillDate = daysDiff * borrower.emiAmount;
 
-    setTotalDemandedAmount(totalDemanded);
+    // setTotalDemandedAmount(totalDemanded);
     setTotalPaidAmount(totalPaid);
-    setTotalPendingAmount(totalPending);
+    // setTotalPendingAmount(totalPending);
     setTotalAmountTillDate(totalTillDate);
   };
 
@@ -167,7 +167,7 @@ const DailySchemeBorrower = () => {
     });
 
     setTotalProfit(profit);
-    setTotalLoss(loss);
+    // setTotalLoss(loss);
   };
 
   // Calculate total balance amount
