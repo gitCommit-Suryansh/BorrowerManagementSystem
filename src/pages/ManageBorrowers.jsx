@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const ManageBorrowers = () => {
-  const [user, setuser] = useState("")
+  const [setuser] = useState("")
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,7 +14,7 @@ const ManageBorrowers = () => {
       navigate("/"); // Navigate to '/' if user is not admin
     }
   }, [navigate]);
-  
+
 
   const [borrowers, setBorrowers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,16 +33,16 @@ const ManageBorrowers = () => {
         const endpoint = isDaily
           ? "/fetch/fetchdailyborrower"
           : isFinance
-          ? "/fetch/fetchfinanceborrower"
-          : "/fetch/fetchmonthlyborrower";
+            ? "/fetch/fetchfinanceborrower"
+            : "/fetch/fetchmonthlyborrower";
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}${endpoint}`
         );
         setBorrowers(
           response.data.dailyBorrowers ||
-            response.data.monthlyBorrowers ||
-            response.data.financeBorrowers ||
-            []
+          response.data.monthlyBorrowers ||
+          response.data.financeBorrowers ||
+          []
         );
         setLoading(false);
       } catch (err) {
@@ -52,7 +52,7 @@ const ManageBorrowers = () => {
     };
 
     fetchBorrowers();
-  }, [isDaily, isFinance,borrowers]);
+  }, [isDaily, isFinance, borrowers]);
 
   const handleEditClick = (borrower) => {
     setSelectedBorrower(borrower);
@@ -70,7 +70,7 @@ const ManageBorrowers = () => {
         address: editAddress,
       };
 
-      const response = await axios.put(
+      await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/updateBorrower/${selectedBorrower._id}`,
         updatedBorrower
       );
@@ -146,27 +146,24 @@ const ManageBorrowers = () => {
           <div className="flex mb-4">
             <button
               onClick={() => handleBorrowerTypeChange("daily")}
-              className={`mr-2 p-2 rounded ${
-                isDaily ? "bg-blue-600 text-white" : "bg-white text-blue-600"
-              }`}
+              className={`mr-2 p-2 rounded ${isDaily ? "bg-blue-600 text-white" : "bg-white text-blue-600"
+                }`}
             >
               Daily Borrowers
             </button>
             <button
               onClick={() => handleBorrowerTypeChange("monthly")}
-              className={`mr-2 p-2 rounded ${
-                !isDaily && !isFinance
+              className={`mr-2 p-2 rounded ${!isDaily && !isFinance
                   ? "bg-blue-600 text-white"
                   : "bg-white text-blue-600"
-              }`}
+                }`}
             >
               Monthly Borrowers
             </button>
             <button
               onClick={() => handleBorrowerTypeChange("finance")}
-              className={`p-2 rounded ${
-                isFinance ? "bg-blue-600 text-white" : "bg-white text-blue-600"
-              }`}
+              className={`p-2 rounded ${isFinance ? "bg-blue-600 text-white" : "bg-white text-blue-600"
+                }`}
             >
               Finance Borrowers
             </button>
@@ -222,11 +219,10 @@ const ManageBorrowers = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div
-                              className={`w-4 h-4 rounded-full ${
-                                borrower.loanStatus === "closed"
+                              className={`w-4 h-4 rounded-full ${borrower.loanStatus === "closed"
                                   ? "bg-green-500"
                                   : "bg-orange-500"
-                              }`}
+                                }`}
                             ></div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
