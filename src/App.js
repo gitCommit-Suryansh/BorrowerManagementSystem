@@ -1,39 +1,54 @@
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 
-import Header from './features/navigation/Header'
-import Login from './features/auth/Login'
-import Home from './pages/Home'
-import RegisterDailyBorrower from './pages/RegisterDailyBorrower'
-import RegisterMonthlyBorrower from './pages/RegisterMonthlyBorrower'
-import RegisterFinanceBorrower from './pages/RegisterFinanceBorrower';
-import DailySchemeBorrower from './features/BorrowerSchemePages/DailySchemeBorrower'
-import MonthlySchemeBorrower from './features/BorrowerSchemePages/MonthlySchemeBorrower'
-import FinanceSchemeBorrower from './features/BorrowerSchemePages/FinanceSchemeBorrower'
-import ModifyBorrowers from './features/ModifyPage/ModifyBorrowers';
-import ManageBorrowers from './pages/ManageBorrowers';
-import AccountManagement from './pages/AccountManagement';
-import MaturityLookup from './features/MaturityLookup';
+import Header from "./features/navigation/Header";
+import Login from "./features/auth/Login";
+import Home from "./pages/Home";
+import RegisterDailyBorrower from "./pages/RegisterDailyBorrower";
+import RegisterMonthlyBorrower from "./pages/RegisterMonthlyBorrower";
+import RegisterFinanceBorrower from "./pages/RegisterFinanceBorrower";
+import DailySchemeBorrower from "./features/BorrowerSchemePages/DailySchemeBorrower";
+import MonthlySchemeBorrower from "./features/BorrowerSchemePages/MonthlySchemeBorrower";
+import FinanceSchemeBorrower from "./features/BorrowerSchemePages/FinanceSchemeBorrower";
+import ModifyBorrowers from "./features/ModifyPage/ModifyBorrowers";
+import ManageBorrowers from "./pages/ManageBorrowers";
+import AccountManagement from "./pages/AccountManagement";
+import MaturityLookup from "./features/MaturityLookup";
 
 function App() {
   const location = useLocation(); // Get the current location
+  console.log("checking");
 
   return (
     <div className="App">
       {/* Conditionally render Header based on the current route */}
-      {location.pathname !== '/' && <Header />}
+      {location.pathname !== "/" && <Header />}
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/onlyadmin" element={<ManageBorrowers />} />
-        <Route path="/registerdailyborrower" element={<RegisterDailyBorrower />} />
-        <Route path="/registermonthlyborrower" element={<RegisterMonthlyBorrower />} />
-        <Route path="/registerfinanceborrower" element={<RegisterFinanceBorrower />} />
+        <Route
+          path="/registerdailyborrower"
+          element={<RegisterDailyBorrower />}
+        />
+        <Route
+          path="/registermonthlyborrower"
+          element={<RegisterMonthlyBorrower />}
+        />
+        <Route
+          path="/registerfinanceborrower"
+          element={<RegisterFinanceBorrower />}
+        />
         <Route path="/dailyborrower" element={<DailySchemeBorrower />} />
         <Route path="/monthlyborrower" element={<MonthlySchemeBorrower />} />
         <Route path="/financeborrower" element={<FinanceSchemeBorrower />} />
         <Route path="/modifyborrowers" element={<ModifyBorrowers />} />
         <Route path="/AccountManagement" element={<AccountManagement />} />
-        <Route path='/MaturityLookup' element={<MaturityLookup/>}/>
+        <Route path="/MaturityLookup" element={<MaturityLookup />} />
       </Routes>
     </div>
   );
