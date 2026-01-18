@@ -3,13 +3,13 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const ManageBorrowers = () => {
-  const [setuser] = useState("")
+
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check local storage for user
     const user = localStorage.getItem("user");
-    setuser(user)
+    // setuser(user)
     if (user !== "admin") {
       navigate("/"); // Navigate to '/' if user is not admin
     }
@@ -154,8 +154,8 @@ const ManageBorrowers = () => {
             <button
               onClick={() => handleBorrowerTypeChange("monthly")}
               className={`mr-2 p-2 rounded ${!isDaily && !isFinance
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-blue-600"
+                ? "bg-blue-600 text-white"
+                : "bg-white text-blue-600"
                 }`}
             >
               Monthly Borrowers
@@ -220,8 +220,8 @@ const ManageBorrowers = () => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div
                               className={`w-4 h-4 rounded-full ${borrower.loanStatus === "closed"
-                                  ? "bg-green-500"
-                                  : "bg-orange-500"
+                                ? "bg-green-500"
+                                : "bg-orange-500"
                                 }`}
                             ></div>
                           </td>

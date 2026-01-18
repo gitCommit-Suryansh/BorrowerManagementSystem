@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -9,11 +8,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
 
     e.preventDefault();
-    if(email === 'admin@gmail.com' && password === 'abcd1234'){
-        
+    if (email === 'admin@gmail.com' && password === 'abcd1234') {
+
       navigate('/home');
     }
-    if(email==='gaurav@admin.com' && password==='gaurav123'){
+    if (email === 'gaurav@admin.com' && password === 'gaurav123') {
       localStorage.setItem('user', 'admin');
       navigate('/onlyadmin')
     }
@@ -96,7 +95,7 @@ const Login = () => {
             </button>
           </div>
         </form>
-        
+
       </div>
     </div>
   );

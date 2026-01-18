@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
-  FaUser,
-  FaPhone,
-  FaIdCard,
-  FaMoneyCheckAlt,
   FaCalendarAlt,
   FaTimes,
   FaPercent,
   FaDownload,
 } from "react-icons/fa";
-import Header from "../navigation/Header";
 import ProgressBar from "../../utils/ProgressBar";
 
 const getCurrentDateString = () => {
@@ -33,9 +28,9 @@ const DailySchemeBorrower = () => {
   const [discountAmount, setDiscountAmount] = useState("");
 
   // New state variables for total demanded and paid amounts
-  const [totalDemandedAmount, setTotalDemandedAmount] = useState(0);
+  // const [totalDemandedAmount, setTotalDemandedAmount] = useState(0);
   const [totalPaidAmount, setTotalPaidAmount] = useState(0);
-  const [totalPendingAmount, setTotalPendingAmount] = useState(0);
+  // const [totalPendingAmount, setTotalPendingAmount] = useState(0);
   const [totalAmountTillDate, setTotalAmountTillDate] = useState(0);
 
   // New state variable for today's total collection
@@ -46,7 +41,7 @@ const DailySchemeBorrower = () => {
 
   // New state variables for profit and loss
   const [totalProfit, setTotalProfit] = useState(0);
-  const [totalLoss, setTotalLoss] = useState(0);
+  // const [totalLoss, setTotalLoss] = useState(0);
   const [showClosedAccounts, setShowClosedAccounts] = useState(false);
   const [user, setuser] = useState(null)
 

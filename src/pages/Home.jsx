@@ -1,45 +1,44 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../features/navigation/Header';
 
 const Home = () => {
   return (
 
     <>
-    {/* <Header/> */}
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-extrabold text-white mb-10 text-center">Borrower Management System</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          <Card
-            title="Daily Scheme"
-            description="Manage daily installments for borrowers"
-            link="/dailyborrower"
-            icon="📅"
-          />
-          <Card
-            title="Monthly Scheme"
-            description="Manage monthly installments for borrowers"
-            link="/monthlyborrower"
-            icon="📆"
-          />
-          <Card
-            title="Finance Scheme"
-            description="Manage financed installments for borrowers"
-            link="/financeborrower"
-            icon="📆"
-          />
-          <Card
-            title="Borrower"
-            description="Add a new borrower to the system"
-            link="/registerdailyborrower"
-            link2="/registermonthlyborrower"
-            link3="/registerfinanceborrower"
-            icon="👤"
-          />
+      {/* <Header/> */}
+      <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-extrabold text-white mb-10 text-center">Borrower Management System</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <Card
+              title="Daily Scheme"
+              description="Manage daily installments for borrowers"
+              link="/dailyborrower"
+              icon="📅"
+            />
+            <Card
+              title="Monthly Scheme"
+              description="Manage monthly installments for borrowers"
+              link="/monthlyborrower"
+              icon="📆"
+            />
+            <Card
+              title="Finance Scheme"
+              description="Manage financed installments for borrowers"
+              link="/financeborrower"
+              icon="📆"
+            />
+            <Card
+              title="Borrower"
+              description="Add a new borrower to the system"
+              link="/registerdailyborrower"
+              link2="/registermonthlyborrower"
+              link3="/registerfinanceborrower"
+              icon="👤"
+            />
+          </div>
         </div>
-      </div>
-    </div></>
+      </div></>
   );
 };
 

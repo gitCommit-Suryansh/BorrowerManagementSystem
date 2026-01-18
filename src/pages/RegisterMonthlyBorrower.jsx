@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
+
 import {
   FaUser,
   FaPhone,
@@ -9,10 +9,10 @@ import {
   FaCalendarAlt,
 } from "react-icons/fa";
 import axios from "axios";
-// import Header from "../features/navigation/Header";
+
 
 const RegisterMonthlyBorrower = () => {
-  // const navigate = useNavigate();
+
   const [message, setMessage] = useState("");
   const [registeredBorrowers, setRegisteredBorrowers] = useState([]);
   const [filteredNames, setFilteredNames] = useState([]);

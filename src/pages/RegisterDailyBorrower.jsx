@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
+
 import { FaUser, FaPhone, FaIdCard, FaMoneyCheckAlt, FaCoins, FaCalendarAlt, } from "react-icons/fa";
 import axios from "axios";
-// import Header from "../features/navigation/Header";
+
 
 const RegisterDailyBorrower = () => {
-  // const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     contact: "",
