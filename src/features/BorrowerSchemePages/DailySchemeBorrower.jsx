@@ -45,6 +45,12 @@ const DailySchemeBorrower = () => {
   const [showClosedAccounts, setShowClosedAccounts] = useState(false);
   const [user, setuser] = useState(null)
 
+  // State for collection details modal
+  const [showCollectionModal, setShowCollectionModal] = useState(false);
+  const [collectionDetails, setCollectionDetails] = useState({ paidBorrowers: [], totalCollection: 0, date: '' });
+  const [collectionLoading, setCollectionLoading] = useState(false);
+  const [selectedDaysAgo, setSelectedDaysAgo] = useState(0);
+
 
 
 
@@ -67,41 +73,39 @@ const DailySchemeBorrower = () => {
       }, 200); // Update percentage every 200ms
 
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/fetch/fetchdailyborrower`
-        );
+        // Fetch borrowers (without installments) and stats in parallel
+        const [borrowersResponse, statsResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/fetch/fetchdailyborrower`),
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/fetch/fetchdailyborrowerstats`),
+        ]);
 
-        // 2. Stop simulation and set to 100% on success
+        // Stop simulation and set to 100% on success
         clearInterval(interval);
         setLoadingPercentage(100);
 
-        setDailyBorrowers(response.data.dailyBorrowers);
-        setLoading(false); // This will happen after the animation completes visually
+        setDailyBorrowers(borrowersResponse.data.dailyBorrowers);
+        setTodaysTotalCollection(statsResponse.data.todaysTotalCollection);
+
+        // Calculate profit and loss (uses borrower-level fields, no installments needed)
+        calculateProfitAndLoss(borrowersResponse.data.dailyBorrowers);
 
         // Add a small delay so the user sees the 100% state briefly
         setTimeout(() => {
           setLoading(false);
         }, 500); // 500ms delay
-
-        // Calculate profit and loss after fetching borrowers
-        calculateProfitAndLoss(response.data.dailyBorrowers);
-
-        // Calculate today's total collection after fetching borrowers
-        calculateTodaysTotalCollection(response.data.dailyBorrowers);
       } catch (err) {
-        // 3. Stop simulation and reset on error
+        // Stop simulation and reset on error
         clearInterval(interval);
         setError("Error fetching daily borrowers");
         setLoading(false);
       }
 
-      // 4. Cleanup function to ensure interval is cleared on unmount
+      // Cleanup function to ensure interval is cleared on unmount
       return () => clearInterval(interval);
-
     };
 
     fetchDailyBorrowers();
-  }, [dailyBorrowers]);
+  }, []); // Fixed: runs only once on mount, no more infinite loop
 
   // New function to calculate total demanded and paid amounts
   const calculateTotalAmounts = (installments, borrower) => {
@@ -130,28 +134,26 @@ const DailySchemeBorrower = () => {
     setTotalAmountTillDate(totalTillDate);
   };
 
-  // New function to calculate today's total collection
-  const calculateTodaysTotalCollection = (borrowers) => {
-    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
-    const total = borrowers.reduce((sum, borrower) => {
-      return (
-        sum +
-        (borrower.installments || []).reduce((acc, inst) => {
-          // Check if the installment is paid and the paidOn date is today
-          if (inst.paid && inst.paidOn && inst.paidOn.split("T")[0] === today) {
-            return acc + inst.receivedAmount; // Sum the receivedAmount
-          }
-          return acc; // Otherwise, return the accumulated value
-        }, 0)
-      );
-    }, 0);
-    setTodaysTotalCollection(total); // Set the total collection
-  };
+  // Today's total collection is now fetched from the backend stats endpoint
+  // (moved to server-side aggregation for performance)
 
-  // Call calculateTodaysTotalCollection whenever dailyBorrowers change
-  useEffect(() => {
-    calculateTodaysTotalCollection(dailyBorrowers);
-  }, [dailyBorrowers]);
+  // Fetch collection details for a specific date (lazy-loaded when modal opened)
+  const fetchCollectionDetails = async (daysAgo = 0) => {
+    setCollectionLoading(true);
+    try {
+      const date = new Date();
+      date.setDate(date.getDate() - daysAgo);
+      const dateStr = date.toISOString().split('T')[0];
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/fetch/fetchdailycollectiondetails?date=${dateStr}`
+      );
+      setCollectionDetails(response.data);
+    } catch (error) {
+      console.error("Error fetching collection details:", error);
+    } finally {
+      setCollectionLoading(false);
+    }
+  };
 
   // New function to calculate profit and loss
   const calculateProfitAndLoss = (borrowers) => {
@@ -295,7 +297,15 @@ const DailySchemeBorrower = () => {
         }
       );
       if (response.status === 200) {
-        console.log("Installment added successfully");
+        // Update this borrower in the local list with fresh data from server
+        const updatedBorrower = response.data.borrower;
+        setDailyBorrowers(prev =>
+          prev.map(b => b._id === updatedBorrower._id ? updatedBorrower : b)
+        );
+        // Update selected borrower to reflect new balanceAmount etc.
+        setSelectedBorrower(updatedBorrower);
+        // Update today's total collection locally
+        setTodaysTotalCollection(prev => prev + receivedAmount);
       } else {
         console.log("Error adding installment");
       }
@@ -320,6 +330,12 @@ const DailySchemeBorrower = () => {
       );
 
       if (response.status === 200) {
+        // Update this borrower in the local list with fresh data from server
+        const updatedBorrower = response.data.borrower;
+        setDailyBorrowers(prev =>
+          prev.map(b => b._id === updatedBorrower._id ? updatedBorrower : b)
+        );
+        setSelectedBorrower(updatedBorrower);
         alert("Discount applied successfully");
       } else {
         alert("Error applying discount");
@@ -330,41 +346,49 @@ const DailySchemeBorrower = () => {
     }
   };
 
-  const handleDownloadData = () => {
-    const fileName = `DailyBorrowers_${getCurrentDateString()}.json`;
+  const handleDownloadData = async () => {
+    try {
+      // Fetch full data with installments for download (uses ?full=true)
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/fetch/fetchdailyborrower?full=true`
+      );
+      const allBorrowers = response.data.dailyBorrowers;
 
-    // Format dates in ISO format with time set to midnight
-    const dataToDownload = dailyBorrowers.map(borrower => {
+      const fileName = `DailyBorrowers_${getCurrentDateString()}.json`;
+
       // Helper function to format date to ISO midnight
       const formatToISODate = (dateString) => {
         const date = new Date(dateString);
         return date.toISOString().split('T')[0] + 'T00:00:00.000+00:00';
       };
 
-      return {
+      // Format dates in ISO format with time set to midnight
+      const dataToDownload = allBorrowers.map(borrower => ({
         ...borrower,
         loanStartDate: formatToISODate(borrower.loanStartDate),
         loanEndDate: formatToISODate(borrower.loanEndDate),
-        // Format dates in installments if they exist
         installments: (borrower.installments || []).map(inst => ({
           ...inst,
           date: formatToISODate(inst.date),
           paidOn: inst.paidOn ? formatToISODate(inst.paidOn) : null
         }))
-      };
-    });
+      }));
 
-    const data = JSON.stringify(dataToDownload, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const href = URL.createObjectURL(blob);
+      const data = JSON.stringify(dataToDownload, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const href = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
-    link.href = href;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(href);
+      const link = document.createElement('a');
+      link.href = href;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(href);
+    } catch (error) {
+      console.error("Error downloading data:", error);
+      alert("Error downloading data. Please try again.");
+    }
   };
 
   if (loading) {
@@ -416,8 +440,16 @@ const DailySchemeBorrower = () => {
             <div className="overflow-x-auto">
               <div className="p-4 flex flex-wrap justify-between">
                 <div>
-                  <h4 className="text-md font-semibold">
-                    <span> Today's Total Collection: ₹{todaysTotalCollection}</span>
+                  <h4
+                    className="text-md font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+                    onClick={() => {
+                      setSelectedDaysAgo(0);
+                      setShowCollectionModal(true);
+                      fetchCollectionDetails(0);
+                    }}
+                    title="Click to see who paid today"
+                  >
+                    <span> Today's Total Collection: ₹{todaysTotalCollection} 👆</span>
                   </h4>
                   {user === "admin" && (
                     <h4 className="text-md font-semibold">
@@ -792,6 +824,104 @@ const DailySchemeBorrower = () => {
           )}
         </div>
       </div>
+
+      {/* Collection Details Modal */}
+      {showCollectionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">
+                Collection Details
+              </h2>
+              <button
+                onClick={() => setShowCollectionModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FaTimes size={24} />
+              </button>
+            </div>
+
+            {/* Date Selection Buttons */}
+            <div className="flex gap-2 mb-4">
+              {[{ label: 'Today', days: 0 }, { label: 'Yesterday', days: 1 }, { label: 'Day Before', days: 2 }].map(({ label, days }) => (
+                <button
+                  key={days}
+                  onClick={() => {
+                    setSelectedDaysAgo(days);
+                    fetchCollectionDetails(days);
+                  }}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${selectedDaysAgo === days
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Date display */}
+            {collectionDetails.date && (
+              <p className="text-sm text-gray-400 mb-2">
+                Showing collections for: {new Date(collectionDetails.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
+            )}
+
+            {collectionLoading ? (
+              <p className="text-gray-500 text-center py-8">Loading...</p>
+            ) : collectionDetails.paidBorrowers.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">No collections recorded on this day.</p>
+            ) : (
+              <>
+                <p className="text-sm text-gray-500 mb-4">
+                  {collectionDetails.paidBorrowers.length} borrower{collectionDetails.paidBorrowers.length !== 1 ? 's' : ''} paid — Total: <span className="font-bold text-green-600">₹{collectionDetails.totalCollection}</span>
+                </p>
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Borrower Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Paid</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Installment Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {collectionDetails.paidBorrowers.map((borrower, index) => (
+                      <tr key={borrower._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
+                        <td className="px-6 py-4 whitespace-nowrap font-medium">{borrower.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-green-600 font-semibold">₹{borrower.totalPaidOnDate}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {borrower.payments.map((p, i) => (
+                            <div key={i}>
+                              {new Date(p.installmentDate).toLocaleDateString('en-IN', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                              })}
+                              {borrower.payments.length > 1 && (
+                                <span className="text-xs text-gray-400 ml-1">(₹{p.amount})</span>
+                              )}
+                            </div>
+                          ))}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-gray-50">
+                    <tr>
+                      <td className="px-6 py-3"></td>
+                      <td className="px-6 py-3 font-bold">Total</td>
+                      <td className="px-6 py-3 font-bold text-green-600">₹{collectionDetails.totalCollection}</td>
+                      <td className="px-6 py-3"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 };

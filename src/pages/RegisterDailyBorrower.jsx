@@ -29,7 +29,7 @@ const RegisterDailyBorrower = () => {
   useEffect(() => {
     const fetchRegisteredBorrowers = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/fetch/fetchdailyborrower`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/fetch/fetchdailyborrower?suggestions=true`);
         setRegisteredBorrowers(response.data.dailyBorrowers);
       } catch (error) {
         console.error("Error fetching registered borrowers:", error);

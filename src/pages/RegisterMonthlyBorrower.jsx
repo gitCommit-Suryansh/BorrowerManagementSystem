@@ -36,7 +36,7 @@ const RegisterMonthlyBorrower = () => {
   useEffect(() => {
     const fetchRegisteredBorrowers = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/fetch/fetchmonthlyborrower`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/fetch/fetchmonthlyborrower?suggestions=true`);
         setRegisteredBorrowers(response.data.monthlyBorrowers);
       } catch (error) {
         console.error("Error fetching registered borrowers:", error);
