@@ -442,11 +442,11 @@ const DailySchemeBorrower = () => {
                 <div>
                   <h4
                     className="text-md font-semibold cursor-pointer hover:text-blue-600 transition-colors"
-                    onClick={() => {
-                      setSelectedDaysAgo(0);
-                      setShowCollectionModal(true);
-                      fetchCollectionDetails(0);
-                    }}
+                    // onClick={() => {
+                    //   setSelectedDaysAgo(0);
+                    //   setShowCollectionModal(true);
+                    //   fetchCollectionDetails(0);
+                    // }}
                     title="Click to see who paid today"
                   >
                     <span> Today's Total Collection: ₹{todaysTotalCollection} 👆</span>
